@@ -6,6 +6,7 @@ import { sceneFor } from './scenes.js';
 import { portraitNow } from './characters.js';
 
 export const WIN = { perfect: 0.07, good: 0.13, bad: 0.18 };
+const NOTE_SCALE = 1.5;
 const TP_EXACT = 0.04;
 const COLOR = {
   perfect: '#ffe27a',
@@ -185,7 +186,8 @@ export class Game {
     this.dpr = dpr;
     this.W = W;
     this.H = H;
-    this.r = Math.max(18, Math.min(40, Math.min(W, H) * 0.045));
+    // Note radius (also sets the touch area, which reaches 1.75x this).
+    this.r = NOTE_SCALE * Math.max(18, Math.min(40, Math.min(W, H) * 0.045));
     // Keep the field and HUD clear of the notch / home indicator on phones.
     const safe = (this.safe = safeInsets());
     const mx = Math.max(this.r * 1.6, W * 0.07);
