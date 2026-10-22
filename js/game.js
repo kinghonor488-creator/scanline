@@ -913,8 +913,8 @@ export class Game {
 
   appearAlpha(n, t, curPage) {
     const a = (t - (n.t - this.approach)) / this.approach;
-    let alpha = Math.min(1, a / 0.25);
-    if (n.page > curPage) alpha *= 0.55;
+    let alpha = Math.min(1, a / 0.12);
+    if (n.page > curPage) alpha *= 0.75;
     if (t > n.t && !n.holding) alpha *= Math.max(0.2, 1 - (t - n.t) / WIN.bad);
     return Math.max(0, alpha);
   }
@@ -1003,6 +1003,49 @@ export class Game {
     const sp = this.sprite(n.type, this.noteSide(n));
     const S = sp.S * scale * (n.holding ? 1.08 : 1);
     g.drawImage(sp.c, p.x - S / 2, p.y - S / 2, S, S);
+
+    // Like Cytus II, a note starts dim and lights up as the scan line closes in.
+    const lit = n.holding || t >= n.t ? 1 : a ** 1.6;
+    const bodyR = (n.type === 'drag' ? R * 0.62 : R * 0.99) * scale;
+    if (lit < 1) {
+      g.fillStyle = `rgba(10, 6, 24, ${0.62 * (1 - lit)})`;
+      g.beginPath();
+      if (n.type === 'drag') {
+        const d = bodyR * 0.9;
+        g.moveTo(p.x, p.y - d); g.lineTo(p.x + d, p.y); g.lineTo(p.x, p.y + d); g.lineTo(p.x - d, p.y);
+      } else {
+        g.arc(p.x, p.y, bodyR, 0, Math.PI * 2);
+      }
+      g.fill();
+    }
+    // In the last stretch before the hit a halo swells around it.
+    const glow = n.holding ? 0.7 : Math.max(0, (a - 0.6) / 0.4) ** 2;
+    if (glow > 0 && n.type !== 'drag') {
+      g.save();
+      g.globalCompositeOperation = 'lighter';
+      const hr = R * scale * (1.3 + 0.5 * glow);
+      const halo = g.createRadialGradient(p.x, p.y, R * scale * 0.5, p.x, p.y, hr);
+      halo.addColorStop(0, color);
+      halo.addColorStop(1, 'rgba(0,0,0,0)');
+      g.globalAlpha = alpha * 0.5 * glow;
+      g.fillStyle = halo;
+      g.beginPath();
+      g.arc(p.x, p.y, hr, 0, Math.PI * 2);
+      g.fill();
+      // a soft white rim rather than a fill, so the note's icon stays readable
+      g.globalAlpha = alpha * 0.6 * glow;
+      g.strokeStyle = '#ffffff';
+      g.lineWidth = 3;
+      g.beginPath();
+      g.arc(p.x, p.y, R * scale * 0.82, 0, Math.PI * 2);
+      g.stroke();
+      g.globalAlpha = alpha * 0.12 * glow;
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.arc(p.x, p.y, R * scale * 0.76, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+    }
   }
 
   drawHUD(g, t) {

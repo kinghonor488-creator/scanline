@@ -58,6 +58,7 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   ↺ Original in the difficulty dialog, choice kept in localStorage, best scores keyed `${id}:${diff}:v${n}`.
   More drags (Easy too, at 35%) and flicks (looser score + spacing rules). sw v3.
 - 2026-10-21: Notes (and their touch area) 1.5x bigger via NOTE_SCALE in game.js; checked no overflow on phone/iPad/desktop. sw v4.
+- 2026-10-21: Notes start dimmed (dark overlay 62% -> 0 along approach^1.6) and gain a halo + white rim over the last 40% before the hit, like Cytus II. sw v5.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed
