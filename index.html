@@ -212,7 +212,7 @@
             <i>drag</i> chains, and swipe across <i>flick</i> notes.</p>
           <p>Keyboard: any letter key or Space hits the next note (hold the key for holds). Esc pauses, F toggles fullscreen.</p>
         </div>
-        <div class="row"><button class="btn primary" id="settings-close">Done</button></div>
+        <div class="row"><span id="build-label" class="build-label"></span><button class="btn primary" id="settings-close">Done</button></div>
       </div>
     </section>
 
@@ -271,6 +271,10 @@
     <button id="intro-skip" class="intro-skip hidden">Skip ▸▸</button>
     <div id="drop-overlay" class="drop-overlay hidden">Drop to import</div>
     <div id="toast" class="toast hidden"></div>
+    <div id="update-bar" class="update-bar hidden" role="status">
+      <span>A new version of SCANLINE is ready.</span>
+      <button class="btn primary small-btn" id="update-reload">Reload</button>
+    </div>
   </div>
 
   <script type="module" src="js/main.js"></script>

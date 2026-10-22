@@ -74,10 +74,15 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 - 2026-10-22: Real art: 8 ChatGPT illustrations (1024x1536) converted to WebP q86 (30 MB PNG -> 4.5 MB) in
   assets/characters, originals in git-ignored /art-src, all listed in custom.json and precached by the service worker.
   Character select panel now scrolls and opens at the top. sw v9.
+- 2026-10-22: Update reliability. sw v10 is network-first (fetch with cache:'no-cache', 3 s timeout, cache fallback;
+  art cache-first) and installs with cache:'no-cache' so GitHub Pages' 10-min HTTP cache can't pin old files.
+  App calls reg.update() on resume; controllerchange shows a "new version ready / Reload" bar when idle
+  (auto-reloads on the title screen). Settings shows BUILD from js/version.js. Simulated deploy tested.
 
 ## Deploying
-- Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed
-  (the precache list must match). Changed files reach installed phones on the launch after next (stale-while-revalidate).
+- Push to `main`; GitHub Pages serves the repo root. On every deploy bump `VERSION` in `sw.js` and `BUILD` in
+  `js/version.js`; keep the sw precache list in sync with new files. Online players get new files on the next load;
+  an open app shows the Reload bar.
 
 ## Gotchas
 - Mouse is a single pointer: hard/chaos can put a hold over other notes, so mouse-only players will drop

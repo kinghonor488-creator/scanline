@@ -9,6 +9,7 @@ import { CHARACTERS, byId, applyTheme, preloadPortraits, characterSVG, portraitI
 import { Player } from './player.js';
 import { Intro } from './intro.js';
 import { SoundPanel } from './soundpanel.js';
+import { BUILD } from './version.js';
 import * as store from './storage.js';
 
 const $ = (id) => document.getElementById(id);
@@ -463,6 +464,8 @@ window.addEventListener('drop', (e) => {
 
 // ------------------------------------------------------------------ settings
 
+$('build-label').textContent = `SCANLINE ${BUILD}`;
+
 function syncSettingsUI() {
   $('set-offset').value = settings.offsetMs;
   $('offset-val').textContent = `${settings.offsetMs > 0 ? '+' : ''}${settings.offsetMs} ms`;
@@ -782,6 +785,8 @@ function loop() {
     game.frame();
   }
   updateCalibPad();
+  // Offer the update only between songs, never mid-play.
+  $('update-bar').classList.toggle('hidden', !(updateReady && game.state === 'idle' && !intro.active));
   const open = visible();
   if (open.includes('player') || open.includes('menu')) player.frame(open.includes('player'));
   if (open.includes('sound')) sound.draw();
@@ -813,9 +818,25 @@ window.__scanline = { getCharts: () => charts, game, calib, player, intro, sound
 
 // Offline / installable app. Skipped on localhost (unless ?sw=1) so development always loads fresh files.
 const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+let updateReady = false;
 if ('serviceWorker' in navigator && (!local || new URLSearchParams(location.search).has('sw'))) {
-  navigator.serviceWorker.register('sw.js').catch((err) => console.warn('Service worker not registered', err));
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    // A home-screen app is often resumed rather than relaunched, so look for updates on resume too.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) reg.update().catch(() => {});
+    });
+  }).catch((err) => console.warn('Service worker not registered', err));
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) {
+      hadController = true; // first install: this page is already the latest
+      return;
+    }
+    if (visible().includes('title')) location.reload();
+    else updateReady = true;
+  });
 }
+$('update-reload').addEventListener('click', () => location.reload());
 
 // Deep link for quick testing: ?play=demo&diff=hard&autoplay=1
 const params = new URLSearchParams(location.search);

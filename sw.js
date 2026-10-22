@@ -1,6 +1,6 @@
-// Offline support: every app file is cached on install, then served cache-first while a fresh copy
-// is fetched in the background (so updates show up on the next launch). Bump VERSION to force a refresh.
-const VERSION = 'scanline-v9';
+// Offline support: every app file is cached on install and kept up to date while online.
+// Bump VERSION (and BUILD in js/version.js) on every deploy.
+const VERSION = 'scanline-v10';
 const ASSETS = [
   './',
   'index.html',
@@ -20,6 +20,7 @@ const ASSETS = [
   'js/player.js',
   'js/intro.js',
   'js/soundpanel.js',
+  'js/version.js',
   'assets/characters/custom.json',
   'assets/characters/yuexian.webp',
   'assets/characters/qingdai.webp',
@@ -38,8 +39,16 @@ const ASSETS = [
   'assets/icons/apple-touch-icon.png',
 ];
 
+// Fetch past the browser's HTTP cache (GitHub Pages lets it keep files for 10 minutes), otherwise an
+// update installed right after a deploy could store the previous files.
+const fresh = (url) => fetch(new Request(url, { cache: 'no-cache' }));
+
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(VERSION)
+      .then((c) => Promise.all(ASSETS.map((url) => fresh(url).then((res) => res.ok && c.put(url, res)))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -50,24 +59,28 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// Online: always the newest files (a cheap revalidation, usually a 304), copied into the cache.
+// Offline or very slow network: the cached copy. Character art rarely changes, so it is served from
+// the cache first.
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
   const isPage = req.mode === 'navigate';
+  const key = isPage ? 'index.html' : req;
   e.respondWith(
     caches.open(VERSION).then(async (cache) => {
-      const cached = await cache.match(isPage ? 'index.html' : req, { ignoreSearch: isPage });
-      const fresh = fetch(req)
+      const cached = await cache.match(key, { ignoreSearch: isPage });
+      if (cached && url.pathname.includes('/assets/characters/') && url.pathname.endsWith('.webp')) return cached;
+      const network = fetch(req, { cache: 'no-cache' })
         .then((res) => {
-          if (res.ok) cache.put(isPage ? 'index.html' : req, res.clone());
+          if (res.ok) cache.put(key, res.clone());
           return res;
         })
         .catch(() => null);
-      if (cached) {
-        e.waitUntil(fresh);
-        return cached;
-      }
-      return (await fresh) || new Response('Offline and not cached yet.', { status: 503 });
+      if (!cached) return (await network) || new Response('Offline and not cached yet.', { status: 503 });
+      const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 3000));
+      return (await Promise.race([network, timeout])) || cached;
     }),
   );
 });
