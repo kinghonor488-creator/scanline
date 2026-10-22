@@ -6,7 +6,7 @@ import { sceneFor } from './scenes.js';
 import { portraitNow } from './characters.js';
 
 export const WIN = { perfect: 0.07, good: 0.13, bad: 0.18 };
-const NOTE_SCALE = 1.5;
+const NOTE_SCALE = 2.25;
 const TP_EXACT = 0.04;
 const COLOR = {
   perfect: '#ffe27a',

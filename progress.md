@@ -59,6 +59,9 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   More drags (Easy too, at 35%) and flicks (looser score + spacing rules). sw v3.
 - 2026-10-21: Notes (and their touch area) 1.5x bigger via NOTE_SCALE in game.js; checked no overflow on phone/iPad/desktop. sw v4.
 - 2026-10-21: Notes start dimmed (dark overlay 62% -> 0 along approach^1.6) and gain a halo + white rim over the last 40% before the hit, like Cytus II. sw v5.
+- 2026-10-21: NOTE_SCALE 2.25 (1.5x of the previous 1.5x). Placement spacing re-tuned for big notes (CLEARANCE 0.2,
+  Y_WEIGHT 0.4, 24 tries): overlapping visible pairs on phone ~9% -> ~3%. Demo song noise is now seeded, so its charts
+  are identical on every load. sw v6.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed
@@ -67,7 +70,6 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 ## Gotchas
 - Mouse is a single pointer: hard/chaos can put a hold over other notes, so mouse-only players will drop
   some of those (touch or keyboard handles it). Keyboard: any letter/Space = next note, hold key for holds.
-- The demo song uses Math.random noise, so its chart varies by a note or two between page loads.
 - Tests: load with `?notitle=1` (or `?play=demo&diff=hard&autoplay=1`) to skip the title screen.
 - The service worker only registers off-localhost (or with `?sw=1`), so local dev never serves stale cached files.
 - `advanceTime` switches the game to a manual clock and silences the music (test-only path).

@@ -3,6 +3,11 @@
 
 export const DIFFS = ['easy', 'hard', 'chaos'];
 
+// Placement spacing in field-width units. The field is roughly 3x wider than tall on a phone held
+// sideways, so a vertical step counts for less than a horizontal one.
+const Y_WEIGHT = 0.4;
+const CLEARANCE = 0.2;
+
 const CFG = {
   easy:  { grid: 1, minGap: 0.95, maxNps: 2.0, thresh: 0.36, page: 2.3, holdProb: 0.55, holdMin: 1.5, flickProb: 0.16, doubleProb: 0,    dragGap: 1.0, dragProb: 0.35, absGap: 0.3 },
   hard:  { grid: 2, minGap: 0.48, maxNps: 4.0, thresh: 0.3,  page: 2.0, holdProb: 0.5,  holdMin: 1.0, flickProb: 0.28, doubleProb: 0.25, dragGap: 0.5, dragProb: 1,    absGap: 0.16 },
@@ -229,13 +234,13 @@ export function generateChart(analysis, diff, seedKey = '', variant = 0) {
       const o = placed[k];
       if (n.t - o.t > pageDur * 1.1) break;
       const dx = x - o.x;
-      const dy = (n.y - o.y) * 0.65;
+      const dy = (n.y - o.y) * Y_WEIGHT;
       minD = Math.min(minD, Math.hypot(dx, dy));
       if (o.type === 'hold') {
         // keep clear of the whole hold tail
         const ylo = Math.min(o.y, o.y2), yhi = Math.max(o.y, o.y2);
         const cy = Math.max(ylo, Math.min(yhi, n.y));
-        minD = Math.min(minD, Math.hypot(dx, (n.y - cy) * 0.65));
+        minD = Math.min(minD, Math.hypot(dx, (n.y - cy) * Y_WEIGHT));
       }
     }
     return minD;
@@ -259,13 +264,13 @@ export function generateChart(analysis, diff, seedKey = '', variant = 0) {
       if (n.type === 'drag') { curChain = n.chain; chainDir = rng() < 0.5 ? -1 : 1; }
       const quick = n.t - lastT < 0.36;
       let bestX = 0.5, bestC = -1;
-      for (let tries = 0; tries < 14; tries++) {
+      for (let tries = 0; tries < 24; tries++) {
         let x;
         if (quick) x = lastX < 0.5 ? rand(0.55, 0.92) : rand(0.08, 0.45);
         else x = Math.max(0.08, Math.min(0.92, lastX + rand(-0.55, 0.55)));
         const c = clearance(x, n);
         if (c > bestC) { bestC = c; bestX = x; }
-        if (c > 0.16) break;
+        if (c > CLEARANCE) break;
       }
       n.x = bestX;
       if (n.type === 'drag') chainDir = n.x > 0.5 ? -1 : 1;

@@ -442,7 +442,10 @@ export async function renderDemoSong() {
 
   const noise = oc.createBuffer(1, sr, sr);
   const nd = noise.getChannelData(0);
-  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  // Seeded noise so the demo (and therefore its charts) is identical on every load.
+  let seed = 12345;
+  const rnd = () => ((seed = (Math.imul(seed, 1103515245) + 12345) >>> 0) / 4294967296) * 2 - 1;
+  for (let i = 0; i < nd.length; i++) nd[i] = rnd();
 
   const env = (g, t, peak, attack, decay) => {
     g.gain.setValueAtTime(0.0001, t);
