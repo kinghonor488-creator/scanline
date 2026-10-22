@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>SCANLINE</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#120c2a">
+  <meta name="apple-mobile-web-app-title" content="SCANLINE">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="ui">
+    <!-- Title: the first tap also unlocks audio on iPhone -->
+    <section id="screen-title" class="screen title-screen">
+      <div class="title-inner">
+        <h1 class="logo big">SCANLINE</h1>
+        <p class="tagline">Every song you love becomes a stage.</p>
+        <button class="tap-start" id="title-start">TAP TO START</button>
+      </div>
+    </section>
+
+    <!-- Main menu / song select -->
+    <section id="screen-menu" class="screen hidden">
+      <div class="menu-layout">
+        <div class="menu-col">
+          <header class="menu-head">
+            <h1 class="logo">SCANLINE</h1>
+            <p class="tagline">Import any song you love. The scan line will learn its beat.</p>
+          </header>
+          <nav class="menu-nav">
+            <label class="btn primary" id="import-btn">
+              <input type="file" id="file-input" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac" multiple hidden>
+              ＋ Import songs
+            </label>
+            <button class="btn" id="player-btn">♪ Music player</button>
+            <button class="btn" id="chars-btn">★ Characters</button>
+            <button class="btn" id="settings-btn">⚙ Settings</button>
+          </nav>
+          <div id="mini-player" class="mini-player hidden" role="button" tabindex="0" aria-label="Open music player">
+            <button id="mini-play" class="icon-btn small" aria-label="Play or pause"></button>
+            <span class="mini-label">Now playing</span>
+            <span id="mini-title" class="mini-title"></span>
+            <div class="mini-progress"><div id="mini-bar"></div></div>
+          </div>
+          <h3 class="section-title">Songs</h3>
+          <ul id="song-list" class="song-list"></ul>
+          <p class="hint">Drop audio files anywhere on this page to import them. Files stay in this browser only.</p>
+        </div>
+        <div class="menu-stage" aria-hidden="true">
+          <div id="menu-portrait" class="menu-portrait"></div>
+          <div id="menu-bubble" class="bubble"></div>
+          <div class="nameplate"><b id="menu-char-name"></b><span id="menu-char-title"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Character select -->
+    <section id="screen-chars" class="screen modal hidden">
+      <div class="panel xwide">
+        <h2>Choose your partner</h2>
+        <p class="muted">Each character brings her own stage, colours and cut-ins.</p>
+        <div id="char-grid" class="char-grid"></div>
+        <div class="row"><button class="btn primary" id="chars-close">Done</button></div>
+      </div>
+    </section>
+
+    <!-- Music player -->
+    <section id="screen-player" class="screen hidden">
+      <div class="player">
+        <header class="player-head">
+          <button class="btn" id="player-back">← Back</button>
+          <h2>Music Player</h2>
+        </header>
+        <div class="player-main">
+          <div class="player-stage">
+            <canvas id="player-viz"></canvas>
+            <div class="np">
+              <div id="np-title" class="np-title">Nothing playing</div>
+              <div id="np-artist" class="muted">Pick a song from the list</div>
+            </div>
+            <div class="seek">
+              <span id="np-pos">0:00</span>
+              <input type="range" id="np-seek" min="0" max="1000" value="0" aria-label="Seek">
+              <span id="np-dur">0:00</span>
+            </div>
+            <div class="transport">
+              <button id="pl-shuffle" class="icon-btn" aria-label="Shuffle"></button>
+              <button id="pl-prev" class="icon-btn" aria-label="Previous"></button>
+              <button id="pl-play" class="icon-btn big" aria-label="Play"></button>
+              <button id="pl-next" class="icon-btn" aria-label="Next"></button>
+              <button id="pl-repeat" class="icon-btn" aria-label="Repeat"></button>
+            </div>
+            <button id="pl-fxinfo" class="fx-chip"></button>
+            <div class="player-extra">
+              <label class="vol">Volume <input type="range" id="pl-volume" min="0" max="1" step="0.05"></label>
+              <button class="btn" id="pl-sound">🎚 Sound</button>
+              <button class="btn primary" id="pl-game">Play this song as a game</button>
+            </div>
+          </div>
+          <div class="queue-wrap">
+            <h3 class="section-title">Library</h3>
+            <ol id="pl-queue" class="pl-queue"></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Import progress -->
+    <section id="screen-import" class="screen modal hidden">
+      <div class="panel">
+        <h2 id="import-title">Analyzing…</h2>
+        <p id="import-stage" class="muted">Decoding audio</p>
+        <div class="bar"><div id="import-bar"></div></div>
+        <p id="import-queue" class="muted small"></p>
+      </div>
+    </section>
+
+    <!-- Difficulty select -->
+    <section id="screen-diff" class="screen modal hidden">
+      <div class="panel wide">
+        <h2 id="diff-title">Song</h2>
+        <p id="diff-meta" class="muted"></p>
+        <div id="diff-list" class="diff-list"></div>
+        <label class="check"><input type="checkbox" id="autoplay-toggle"> Auto play (watch the chart)</label>
+        <div class="row">
+          <button class="btn" id="diff-back">Back</button>
+          <button class="btn primary" id="diff-play">Play</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pause -->
+    <section id="screen-pause" class="screen modal hidden">
+      <div class="panel">
+        <h2>Paused</h2>
+        <div class="col">
+          <button class="btn primary" id="pause-resume">Resume</button>
+          <button class="btn" id="pause-retry">Retry</button>
+          <button class="btn" id="pause-quit">Quit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="screen-results" class="screen modal hidden">
+      <div class="panel wide results">
+        <div id="res-portrait" class="res-portrait"></div>
+        <p id="res-line" class="res-line"></p>
+        <p id="res-song" class="muted"></p>
+        <div class="res-top">
+          <div id="res-rank" class="rank">S</div>
+          <div>
+            <div id="res-score" class="res-score">0000000</div>
+            <div id="res-tp" class="muted">TP 0.00</div>
+            <div id="res-badge" class="badge"></div>
+          </div>
+        </div>
+        <table class="res-table">
+          <tr><td class="j-perfect">Perfect</td><td id="res-perfect">0</td><td class="j-bad">Bad</td><td id="res-bad">0</td></tr>
+          <tr><td class="j-good">Good</td><td id="res-good">0</td><td class="j-miss">Miss</td><td id="res-miss">0</td></tr>
+          <tr><td>Max combo</td><td id="res-combo">0</td><td>Early / Late</td><td id="res-el">0 / 0</td></tr>
+        </table>
+        <div class="row">
+          <button class="btn" id="res-back">Song list</button>
+          <button class="btn primary" id="res-retry">Retry</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="screen-settings" class="screen modal hidden">
+      <div class="panel wide">
+        <h2>Settings</h2>
+        <label class="field">Audio offset <span id="offset-val">0 ms</span>
+          <input type="range" id="set-offset" min="-200" max="200" step="5">
+          <small class="muted">If notes feel early, move right. If they feel late, move left.</small>
+        </label>
+        <button class="btn" id="calib-open">Calibrate by tapping…</button>
+        <label class="field">Note appear time <span id="approach-val">1.0×</span>
+          <input type="range" id="set-approach" min="0.6" max="1.6" step="0.1">
+        </label>
+        <label class="field">Music volume <span id="vol-val">80%</span>
+          <input type="range" id="set-volume" min="0" max="1" step="0.05">
+        </label>
+        <button class="btn" id="fx-open">🎚 Sound: EQ, loudness, spatial…</button>
+        <label class="check"><input type="checkbox" id="set-hitsound"> Hit sounds</label>
+        <label class="check"><input type="checkbox" id="set-shake"> Screen shake</label>
+        <label class="check"><input type="checkbox" id="set-intro"> Play the opening on launch</label>
+        <button class="btn" id="intro-replay">Watch the opening again</button>
+        <div class="controls-help">
+          <b>Controls</b>
+          <p>Tap / click notes when the scan line crosses them. Keep holding <i>hold</i> notes, rest your finger on
+            <i>drag</i> chains, and swipe across <i>flick</i> notes.</p>
+          <p>Keyboard: any letter key or Space hits the next note (hold the key for holds). Esc pauses, F toggles fullscreen.</p>
+        </div>
+        <div class="row"><button class="btn primary" id="settings-close">Done</button></div>
+      </div>
+    </section>
+
+    <!-- Offset calibration -->
+    <section id="screen-calib" class="screen modal hidden">
+      <div class="panel wide calib">
+        <h2>Calibrate offset</h2>
+        <p class="muted">Tap the circle, press Space, or click it in time with the clicks. Listen, don't watch:
+          the first four clicks are a warm-up.</p>
+        <button id="calib-pad" class="calib-pad" aria-label="Tap in time with the clicks">
+          <span id="calib-pad-label">Start</span>
+        </button>
+        <div class="calib-dots" id="calib-dots"></div>
+        <p id="calib-status" class="calib-status">Press Start, then tap along.</p>
+        <div class="row">
+          <button class="btn" id="calib-cancel">Cancel</button>
+          <button class="btn" id="calib-retry" disabled>Try again</button>
+          <button class="btn primary" id="calib-apply" disabled>Apply</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sound / listening settings -->
+    <section id="screen-sound" class="screen modal hidden">
+      <div class="panel wide sound">
+        <h2>Sound</h2>
+        <p class="muted small">Applies to the music player and to gameplay.</p>
+        <canvas id="eq-canvas" tabindex="0" aria-label="Equalizer: left and right choose a band, up and down change it"></canvas>
+        <div id="eq-presets" class="chips"></div>
+        <label class="check"><input type="checkbox" id="fx-normalize"> Loudness normalization</label>
+        <p id="fx-loud" class="muted small fx-note"></p>
+        <div class="field-label">Spatial</div>
+        <div id="fx-spatial" class="seg">
+          <button data-mode="off">Stereo</button>
+          <button data-mode="wide">Wide</button>
+          <button data-mode="headphone">Headphone</button>
+          <button data-mode="hall">Live hall</button>
+        </div>
+        <label class="field">Crossfade between songs <span id="xfade-val">3 s</span>
+          <input type="range" id="fx-xfade" min="0" max="10" step="1">
+        </label>
+        <div class="row">
+          <button class="btn" id="eq-reset">Reset EQ</button>
+          <button class="btn primary" id="sound-close">Done</button>
+        </div>
+      </div>
+    </section>
+
+    <button id="pause-btn" class="pause-btn hidden" aria-label="Pause">II</button>
+    <button id="intro-skip" class="intro-skip hidden">Skip ▸▸</button>
+    <div id="drop-overlay" class="drop-overlay hidden">Drop to import</div>
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
