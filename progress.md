@@ -71,6 +71,9 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   framed cards in menu/select/results/intro, face crop for cut-ins and player disc, blurred card as the stage
   (progressive down/upscale blur). ThemedScene adds pavilion/castle/wisteria/dunes/ink/maple. Fonts re-subset
   with the new names. Tested with a temporary local card (removed before commit). sw v8.
+- 2026-10-22: Real art: 8 ChatGPT illustrations (1024x1536) converted to WebP q86 (30 MB PNG -> 4.5 MB) in
+  assets/characters, originals in git-ignored /art-src, all listed in custom.json and precached by the service worker.
+  Character select panel now scrolls and opens at the top. sw v9.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed
@@ -88,5 +91,4 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 - Long holds spanning pages, click-drag heads (Cytus II note types not yet implemented).
 - Run the analyzer in a Web Worker for very long files (currently chunked on the main thread).
 - Optional chart editor / per-song manual BPM override.
-- Waiting on ChatGPT illustrations for the 8 characters (see assets/characters/PROMPTS.md).
 - Voice lines / character-specific hit sounds; unlockables per character.

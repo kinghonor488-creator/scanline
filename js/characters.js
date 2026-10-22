@@ -1,6 +1,6 @@
 // Original anime-style characters, drawn as layered SVG from a shared template.
 // Each character has her own palette, hairstyle, accessory, outfit and background scene.
-// Drop a PNG at assets/characters/<id>.png to replace a drawn portrait with your own art.
+// A WebP illustration at assets/characters/<id>.webp replaces the drawn portrait (see README there).
 
 export const CHARACTERS = [
   {
@@ -352,8 +352,8 @@ function loadImage(src) {
   });
 }
 
-// Custom art (assets/characters/<id>.png) wins over the drawn portrait when present.
-// assets/characters/custom.json lists the ids that have a PNG, so nothing 404s when there are none.
+// Custom art (assets/characters/<id>.webp) wins over the drawn portrait when present.
+// assets/characters/custom.json lists the ids that have art, so nothing 404s when there is none.
 let customList = null;
 function customIds() {
   if (!customList) {
@@ -369,7 +369,7 @@ export async function portraitImage(ch) {
   const p = customIds()
     .then((ids) => {
       if (!ids.includes(ch.id)) throw new Error('no custom art');
-      return loadImage(`assets/characters/${ch.id}.png`);
+      return loadImage(`assets/characters/${ch.id}.webp`);
     })
     .then((img) => ({ img, custom: true }))
     .catch(() => {

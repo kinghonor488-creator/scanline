@@ -353,6 +353,7 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); }
 .controls-help p { margin: 6px 0; }
 #settings-close { min-width: 120px; }
 #screen-settings .panel { max-height: calc(100vh - 40px); overflow-y: auto; }
+#screen-chars .panel { max-height: calc(100vh - 32px); overflow-y: auto; }
 #calib-open, #intro-replay { width: 100%; margin-top: 4px; }
 
 /* ---------- sound ---------- */

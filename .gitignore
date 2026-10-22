@@ -1,2 +1,5 @@
 .DS_Store
 .claude/
+art-src/
+share/pilot-yuexian-card.png
+share/cardgen.js

@@ -1,6 +1,6 @@
 // Offline support: every app file is cached on install, then served cache-first while a fresh copy
 // is fetched in the background (so updates show up on the next launch). Bump VERSION to force a refresh.
-const VERSION = 'scanline-v8';
+const VERSION = 'scanline-v9';
 const ASSETS = [
   './',
   'index.html',
@@ -21,6 +21,14 @@ const ASSETS = [
   'js/intro.js',
   'js/soundpanel.js',
   'assets/characters/custom.json',
+  'assets/characters/yuexian.webp',
+  'assets/characters/qingdai.webp',
+  'assets/characters/shuanglan.webp',
+  'assets/characters/zidie.webp',
+  'assets/characters/sakumi.webp',
+  'assets/characters/feiwu.webp',
+  'assets/characters/moyu.webp',
+  'assets/characters/fenghua.webp',
   'assets/fonts/mplus-rounded-1c-500.woff2',
   'assets/fonts/mplus-rounded-1c-700.woff2',
   'assets/fonts/mplus-rounded-1c-800.woff2',

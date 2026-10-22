@@ -112,7 +112,8 @@ for (const ch of CHARACTERS) {
 setCharacter(character);
 $('chars-btn').addEventListener('click', () => {
   show('menu', 'chars');
-  $('chars-close').focus();
+  $('screen-chars').querySelector('.panel').scrollTop = 0;
+  ($('char-grid').querySelector('.selected') || $('chars-close')).focus({ preventScroll: true });
 });
 $('chars-close').addEventListener('click', () => show('menu'));
 
