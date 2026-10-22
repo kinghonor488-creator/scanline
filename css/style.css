@@ -388,6 +388,7 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); }
   font-weight: 800;
   cursor: pointer;
 }
+.seg.two { grid-template-columns: repeat(2, 1fr); }
 .seg button.on { background: linear-gradient(100deg, var(--cyan), var(--pink)); color: #160c2c; }
 .seg button:focus-visible { outline: 2px solid var(--cyan); }
 .fx-chip {

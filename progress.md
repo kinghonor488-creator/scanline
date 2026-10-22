@@ -62,6 +62,10 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 - 2026-10-21: NOTE_SCALE 2.25 (1.5x of the previous 1.5x). Placement spacing re-tuned for big notes (CLEARANCE 0.2,
   Y_WEIGHT 0.4, 24 tries): overlapping visible pairs on phone ~9% -> ~3%. Demo song noise is now seeded, so its charts
   are identical on every load. sw v6.
+- 2026-10-22: Note spawn reworked after studying Cytoid's Classic renderer (open-source Cytus clone) and Cytus II
+  player notes: full-size flash-in with a double blink (no growth), a bright core that grows to fill the note exactly
+  on the beat (replaces the arc), clockwise hold timer with a white tip, and a "Notes appear: one by one / a page
+  at a time" setting (Cytus II's Default/Group). Game.spawnAt(n) + maxLead drive visibility. sw v7.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed

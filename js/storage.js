@@ -105,7 +105,7 @@ export async function submitBest(id, diff, result) {
 
 const SETTINGS_KEY = 'scanline.settings';
 export const defaultSettings = {
-  offsetMs: 0, approach: 1, volume: 0.8, hitSounds: true, shake: true, intro: true,
+  offsetMs: 0, approach: 1, spawn: 'single', volume: 0.8, hitSounds: true, shake: true, intro: true,
   fx: { preset: 'flat', gains: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], normalize: true, spatial: 'off', crossfade: 3 },
 };
 

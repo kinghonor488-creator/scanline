@@ -121,7 +121,7 @@ function applySettings() {
   if (music.normalize !== settings.fx.normalize) music.setNormalize(settings.fx.normalize);
   if (music.spatial !== settings.fx.spatial) music.setSpatial(settings.fx.spatial);
   music.hitSounds = settings.hitSounds;
-  game.settings = { offsetMs: settings.offsetMs, approach: settings.approach, shake: settings.shake };
+  game.settings = { offsetMs: settings.offsetMs, approach: settings.approach, spawn: settings.spawn, shake: settings.shake };
 }
 applySettings();
 
@@ -471,6 +471,7 @@ function syncSettingsUI() {
   $('set-hitsound').checked = settings.hitSounds;
   $('set-shake').checked = settings.shake;
   $('set-intro').checked = settings.intro;
+  for (const b of $('set-spawn').children) b.classList.toggle('on', b.dataset.mode === settings.spawn);
   $('pl-volume').value = settings.volume;
 }
 
@@ -488,6 +489,14 @@ bindSetting('set-volume', 'volume', (t) => +t.value);
 bindSetting('set-hitsound', 'hitSounds', (t) => t.checked);
 bindSetting('set-shake', 'shake', (t) => t.checked);
 bindSetting('set-intro', 'intro', (t) => t.checked);
+for (const b of $('set-spawn').children) {
+  b.addEventListener('click', () => {
+    settings.spawn = b.dataset.mode;
+    store.saveSettings(settings);
+    applySettings();
+    syncSettingsUI();
+  });
+}
 bindSetting('pl-volume', 'volume', (t) => +t.value);
 $('intro-replay').addEventListener('click', () => playIntro());
 

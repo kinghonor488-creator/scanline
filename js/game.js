@@ -258,6 +258,8 @@ export class Game {
     this.fx.clear();
     this.fx.shakeEnabled = this.settings.shake;
     this.approach = Math.max(0.8, Math.min(2.4, chart.pageDur)) * this.settings.approach;
+    // Furthest ahead of its hit time any note can appear (group mode shows a whole page early).
+    this.maxLead = this.settings.spawn === 'group' ? chart.pageDur * 2 + 0.05 : this.approach;
     this.lead = 2.2;
     this.clockReady = false;
     this.state = 'playing';
@@ -448,7 +450,7 @@ export class Game {
     const anyKey = this.keys.size > 0;
     for (let i = this.cursor; i < notes.length; i++) {
       const n = notes[i];
-      if (n.t - this.approach > t) break;
+      if (n.t - this.maxLead > t) break;
       if (n.done) continue;
       if (n.holding) {
         if (t >= n.t + n.dur) this.finishHold(n);
@@ -866,13 +868,22 @@ export class Game {
     }
   }
 
+  // When a note shows up: one approach ahead on its own, or in "group" mode all of a page's notes
+  // flash in together as the sweep before that page begins (Cytus II's Group option).
+  spawnAt(n) {
+    if (this.settings.spawn === 'group') {
+      const pageStart = this.chart.origin + n.page * this.chart.pageDur;
+      return Math.min(n.t - 0.4, pageStart - this.chart.pageDur);
+    }
+    return n.t - this.approach;
+  }
+
   drawNotes(g, t) {
-    const A = this.approach;
     const vis = [];
     for (let i = this.cursor; i < this.notes.length; i++) {
       const n = this.notes[i];
-      if (n.t - A > t) break;
-      if (!n.done) vis.push(n);
+      if (n.t - this.maxLead > t) break;
+      if (!n.done && t >= this.spawnAt(n)) vis.push(n);
     }
     const curPage = this.scanAt(t).page;
 
@@ -881,7 +892,7 @@ export class Game {
     for (const n of vis) {
       if (n.type === 'drag' && n.next !== undefined) {
         const m = this.notes[n.next];
-        if (!m.done && m.t - A <= t) {
+        if (!m.done && t >= this.spawnAt(m)) {
           const a = this.posAt(n.x, n.y);
           const b = this.posAt(m.x, m.y);
           g.globalAlpha = this.appearAlpha(m, t, curPage) * 0.7;
@@ -912,9 +923,11 @@ export class Game {
   }
 
   appearAlpha(n, t, curPage) {
-    const a = (t - (n.t - this.approach)) / this.approach;
-    let alpha = Math.min(1, a / 0.12);
-    if (n.page > curPage) alpha *= 0.75;
+    const since = t - this.spawnAt(n);
+    if (since < 0) return 0;
+    // Pop in with a quick double blink rather than a slow fade.
+    let alpha = since < 0.3 && Math.floor(since / 0.075) % 2 ? 0.35 : 1;
+    if (n.page > curPage) alpha *= 0.8;
     if (t > n.t && !n.holding) alpha *= Math.max(0.2, 1 - (t - n.t) / WIN.bad);
     return Math.max(0, alpha);
   }
@@ -922,8 +935,11 @@ export class Game {
   drawNote(g, n, t, curPage) {
     const R = this.r;
     const p = this.posAt(n.x, n.y);
-    const a = Math.max(0, Math.min(1, (t - (n.t - this.approach)) / this.approach));
-    const scale = 0.55 + 0.45 * easeOutBack(Math.min(1, a / 0.25));
+    const spawn = this.spawnAt(n);
+    const since = t - spawn;
+    const a = Math.max(0, Math.min(1, since / (n.t - spawn)));
+    // Full size from the first frame, with a small kick as it flashes in (no slow growth).
+    const scale = 1 + (since < 0.15 ? 0.14 * (1 - since / 0.15) : 0);
     const alpha = this.appearAlpha(n, t, curPage);
     const color = this.noteColor(n);
     g.globalAlpha = alpha;
@@ -979,26 +995,28 @@ export class Game {
       g.fill();
     }
 
-    if (n.type !== 'drag' && !n.holding) {
-      // Approach ring with a glowing head.
-      const ang = -Math.PI / 2 + Math.PI * 2 * a;
-      g.strokeStyle = color;
-      g.lineWidth = 2.5;
-      g.beginPath();
-      g.arc(p.x, p.y, R * scale * 1.14, -Math.PI / 2, ang);
-      g.stroke();
-      g.fillStyle = '#ffffff';
-      g.beginPath();
-      g.arc(p.x + Math.cos(ang) * R * scale * 1.14, p.y + Math.sin(ang) * R * scale * 1.14, 3, 0, Math.PI * 2);
-      g.fill();
-    }
     const near = 1 - Math.min(1, Math.abs(t - n.t) / 0.15);
-    if ((near > 0 || n.holding) && n.type !== 'drag') {
-      g.strokeStyle = `rgba(255,255,255,${n.holding ? 0.9 : near * 0.9})`;
+    if (near > 0 && !n.holding && n.type !== 'drag') {
+      g.strokeStyle = `rgba(255,255,255,${near * 0.9})`;
       g.lineWidth = 2;
       g.beginPath();
-      g.arc(p.x, p.y, R * (1.25 + (n.holding ? Math.sin(t * 20) * 0.05 : 0)), 0, Math.PI * 2);
+      g.arc(p.x, p.y, R * 1.25, 0, Math.PI * 2);
       g.stroke();
+    }
+    if (n.holding) {
+      // Clockwise timer around a held note; the white tip marks how far the hold has got.
+      const prog = Math.max(0, Math.min(1, (t - n.t) / n.dur));
+      const start = -Math.PI / 2;
+      const end = start + Math.PI * 2 * prog;
+      g.lineCap = 'round';
+      g.lineWidth = 5;
+      g.strokeStyle = 'rgba(255,255,255,0.15)';
+      g.beginPath(); g.arc(p.x, p.y, R * 1.3, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = color;
+      g.beginPath(); g.arc(p.x, p.y, R * 1.3, start, end); g.stroke();
+      g.strokeStyle = '#ffffff';
+      g.beginPath(); g.arc(p.x, p.y, R * 1.3, Math.max(start, end - 0.35), end); g.stroke();
+      g.lineCap = 'butt';
     }
     const sp = this.sprite(n.type, this.noteSide(n));
     const S = sp.S * scale * (n.holding ? 1.08 : 1);
@@ -1017,6 +1035,32 @@ export class Game {
         g.arc(p.x, p.y, bodyR, 0, Math.PI * 2);
       }
       g.fill();
+    }
+    // Timing cue: a bright core grows from the centre and fills the note exactly on the beat.
+    if (n.type !== 'drag' && !n.holding && t < n.t) {
+      const fr = R * 0.74 * scale * a;
+      g.fillStyle = mix(color, '#ffffff', 0.55);
+      g.globalAlpha = alpha * (0.35 + 0.35 * a);
+      g.beginPath(); g.arc(p.x, p.y, fr, 0, Math.PI * 2); g.fill();
+      g.globalAlpha = alpha * 0.9;
+      g.strokeStyle = '#ffffff';
+      g.lineWidth = 2;
+      g.beginPath(); g.arc(p.x, p.y, fr, 0, Math.PI * 2); g.stroke();
+      g.globalAlpha = alpha;
+    }
+    // Spawn flash: a white burst the moment the note appears.
+    if (since < 0.25) {
+      const k = since / 0.25;
+      g.save();
+      g.globalCompositeOperation = 'lighter';
+      g.globalAlpha = 0.85 * (1 - k) ** 1.5;
+      g.fillStyle = '#ffffff';
+      g.beginPath(); g.arc(p.x, p.y, bodyR * (0.9 + 0.2 * k), 0, Math.PI * 2); g.fill();
+      g.globalAlpha = 0.9 * (1 - k);
+      g.strokeStyle = color;
+      g.lineWidth = 3;
+      g.beginPath(); g.arc(p.x, p.y, bodyR * (1 + 0.8 * k), 0, Math.PI * 2); g.stroke();
+      g.restore();
     }
     // In the last stretch before the hit a halo swells around it.
     const glow = n.holding ? 0.7 : Math.max(0, (a - 0.6) / 0.4) ** 2;
@@ -1160,8 +1204,8 @@ export class Game {
     const notes = [];
     for (let i = this.cursor; i < this.notes.length && notes.length < 10; i++) {
       const n = this.notes[i];
-      if (n.t - this.approach > t) break;
-      if (n.done) continue;
+      if (n.t - this.maxLead > t) break;
+      if (n.done || t < this.spawnAt(n)) continue;
       const p = this.posAt(n.x, n.y);
       notes.push({
         id: n.id,
