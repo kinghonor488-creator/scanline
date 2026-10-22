@@ -30,6 +30,7 @@ html, body {
 }
 
 #game {
+  -webkit-touch-callout: none;
   position: fixed;
   inset: 0;
   width: 100%;
@@ -169,11 +170,22 @@ html, body {
 .bubble::after {
   content: "";
   position: absolute;
-  right: 30px;
-  bottom: -10px;
+  right: -10px;
+  top: 50%;
+  margin-top: -10px;
   border: 10px solid transparent;
-  border-top-color: #fff;
-  border-bottom: 0;
+  border-left-color: #fff;
+  border-right: 0;
+}
+/* When there is no room beside the card the bubble sits on the gown, pointing up at her. */
+.bubble.on-card::after {
+  right: auto;
+  left: 50%;
+  top: -10px;
+  margin: 0 0 0 -10px;
+  border: 10px solid transparent;
+  border-bottom-color: #fff;
+  border-top: 0;
 }
 
 .hint { color: var(--muted); font-size: 13px; text-align: center; margin-top: 18px; }
@@ -685,7 +697,7 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); }
   .menu-portrait { height: 96%; }
   .nameplate { bottom: 14px; padding: 6px 16px; }
   .nameplate b { font-size: 18px; }
-  .bubble { top: 6%; font-size: 12px; max-width: 200px; }
+  .bubble { font-size: 12px; padding: 9px 13px; }
   .diff-list { margin: 10px 0; }
   .diff { padding: 8px; }
   .diff .lv { font-size: 26px; }

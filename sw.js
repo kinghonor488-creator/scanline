@@ -1,6 +1,6 @@
 // Offline support: every app file is cached on install and kept up to date while online.
 // Bump VERSION (and BUILD in js/version.js) on every deploy.
-const VERSION = 'scanline-v10';
+const VERSION = 'scanline-v11';
 const ASSETS = [
   './',
   'index.html',

@@ -78,6 +78,10 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   art cache-first) and installs with cache:'no-cache' so GitHub Pages' 10-min HTTP cache can't pin old files.
   App calls reg.update() on resume; controllerchange shows a "new version ready / Reload" bar when idle
   (auto-reloads on the title screen). Settings shows BUILD from js/version.js. Simulated deploy tested.
+- 2026-10-22: Menu speech bubble placed from the card's measured rect (beside it at chest height, or on the gown when
+  the column is narrow) so it never covers the face. Multi-touch: CDP-simulated simultaneous taps (22 doubles,
+  holds kept down under other taps) all PERFECT; added touch/gesture preventDefault on the canvas against iOS
+  system gestures, -webkit-touch-callout none, and a hit-candidate bias toward the note actually under a finger. v11.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. On every deploy bump `VERSION` in `sw.js` and `BUILD` in

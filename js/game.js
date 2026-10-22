@@ -175,6 +175,12 @@ export class Game {
     canvas.addEventListener('pointerup', (e) => this.onUp(e), opts);
     canvas.addEventListener('pointercancel', (e) => this.onUp(e), opts);
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    // iOS turns multi-finger taps into system gestures (three-finger undo, magnifier, callouts) unless
+    // the touch events themselves are cancelled; pointer events still arrive for the game.
+    const block = (e) => { if (e.cancelable) e.preventDefault(); };
+    for (const type of ['touchstart', 'touchmove', 'touchend', 'gesturestart', 'gesturechange']) {
+      canvas.addEventListener(type, block, opts);
+    }
   }
 
   resize() {
@@ -579,7 +585,8 @@ export class Game {
         d = Math.hypot(p.x - x, p.y - y);
         if (d > reach) continue;
       }
-      const key = Math.abs(dt) + d * 0.0005;
+      // A note under the finger beats a neighbour whose reach merely overlaps the touch.
+      const key = Math.abs(dt) + d * 0.0005 + (x !== null && d > this.r ? 0.06 : 0);
       if (key < bestKey) {
         bestKey = key;
         best = n;

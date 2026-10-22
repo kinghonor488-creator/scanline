@@ -84,9 +84,32 @@ function setCharacter(ch) {
 preloadPortraits();
 
 let bubbleTimer = 0;
+// Places the speech bubble beside the card at chest height (never over her face); if the column is
+// too narrow, it goes on the lower half of the card instead.
+function placeBubble(b) {
+  const stage = b.parentElement.getBoundingClientRect();
+  const card = $('menu-portrait').getBoundingClientRect();
+  const overlap = 14;
+  const room = card.left - stage.left + overlap - 8;
+  b.classList.remove('on-card');
+  b.style.left = b.style.right = b.style.top = '';
+  if (room >= 150) {
+    b.style.maxWidth = `${Math.min(260, room)}px`;
+    b.style.right = `${stage.right - card.left - overlap}px`;
+    b.style.left = 'auto';
+    b.style.top = `${card.top - stage.top + card.height * 0.38 - b.offsetHeight / 2}px`;
+  } else {
+    b.classList.add('on-card');
+    b.style.maxWidth = `${card.width * 0.86}px`;
+    b.style.left = `${card.left - stage.left + card.width * 0.07}px`;
+    b.style.top = `${card.top - stage.top + card.height * 0.56}px`;
+  }
+}
+
 function say(line) {
   const b = $('menu-bubble');
   b.textContent = line;
+  placeBubble(b);
   b.classList.add('show');
   clearTimeout(bubbleTimer);
   bubbleTimer = setTimeout(() => b.classList.remove('show'), 3200);
