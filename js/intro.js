@@ -1,13 +1,13 @@
 // Opening sequence: a ~10 second in-engine "anime OP" drawn on the game canvas with a synthesized
 // soundtrack. Boot scan -> glitch logo -> one cut per character -> group shot -> menu.
 
-import { CHARACTERS, portraitNow } from './characters.js';
+import { CHARACTERS, portraitNow, drawPortrait } from './characters.js';
 import { sceneFor } from './scenes.js';
 
 const FONT = '"M PLUS Rounded 1c", "Avenir Next", "Segoe UI", system-ui, sans-serif';
 const LOGO_AT = 1.4;
 const CUTS_AT = 3.0;
-const CUT_LEN = 1.2;
+const CUT_LEN = 0.9;
 const FINALE_AT = CUTS_AT + CHARACTERS.length * CUT_LEN;
 export const INTRO_LENGTH = FINALE_AT + 2.6;
 
@@ -126,8 +126,8 @@ export class Intro {
       const t = T + CUTS_AT + i * CUT_LEN;
       kick(t, 1);
       kick(t + CUT_LEN / 2, 0.7);
-      pad(t, chords[i], CUT_LEN + 0.1, 0.04);
-      for (let k = 0; k < 8; k++) tone(t + k * step, chords[i][k % 3] * (k % 2 ? 4 : 2), step * 0.9, 'square', 0.05, 4000);
+      pad(t, chords[i % 4], CUT_LEN + 0.1, 0.04);
+      for (let k = 0; k < 8; k++) tone(t + k * step, chords[i % 4][k % 3] * (k % 2 ? 4 : 2), step * 0.9, 'square', 0.05, 4000);
     });
     const tf = T + FINALE_AT;
     riser(tf - 0.6, 0.6);
@@ -272,11 +272,12 @@ export class Intro {
     const portraitMode = H > W;
     const pic = portraitNow(ch);
     if (pic) {
-      const h = portraitMode ? H * 0.68 : H * 1.02;
+      // Illustration cards float centred vertically; drawn busts stand on the bottom edge.
+      const h = pic.custom ? (portraitMode ? H * 0.6 : H * 0.86) : portraitMode ? H * 0.68 : H * 1.02;
       const w = (h * pic.img.width) / pic.img.height;
       const enter = easeOut(k / 0.3);
-      const x = dir > 0 ? W * 0.98 - w + (1 - enter) * W * 0.4 - k * 20 : W * 0.02 - (1 - enter) * W * 0.4 + k * 20;
-      g.drawImage(pic.img, x, H - h + 10, w, h);
+      const x = dir > 0 ? W * 0.96 - w + (1 - enter) * W * 0.4 - k * 20 : W * 0.04 - (1 - enter) * W * 0.4 + k * 20;
+      drawPortrait(g, pic, x, pic.custom ? (H - h) / 2 + (portraitMode ? H * 0.12 : 0) : H - h + 10, w, h);
     }
     // Name card.
     const tx = portraitMode ? W * 0.07 : dir > 0 ? W * 0.07 : W * 0.93 - Math.min(W * 0.45, 420);
@@ -289,14 +290,14 @@ export class Intro {
     g.textBaseline = 'alphabetic';
     g.font = `900 ${Math.min(W * 0.2, 180)}px ${FONT}`;
     g.fillStyle = 'rgba(255,255,255,0.18)';
-    g.fillText(ch.jp, tx, nameY - Math.min(W * 0.11, 92) * 0.8);
+    g.fillText(ch.name, tx, nameY - Math.min(W * 0.11, 92) * 0.8);
     g.font = `italic 900 ${Math.min(W * 0.11, 92)}px ${FONT}`;
     g.lineWidth = 8;
     g.lineJoin = 'round';
     g.strokeStyle = 'rgba(20,10,40,0.8)';
-    g.strokeText(ch.name.toUpperCase(), tx, nameY);
+    g.strokeText(ch.en.toUpperCase(), tx, nameY);
     g.fillStyle = '#ffffff';
-    g.fillText(ch.name.toUpperCase(), tx, nameY);
+    g.fillText(ch.en.toUpperCase(), tx, nameY);
     g.font = `800 ${Math.min(W * 0.035, 22)}px ${FONT}`;
     g.fillStyle = c.accent === c.primary ? '#ffffff' : c.accent;
     g.fillText(ch.title.toUpperCase(), tx + 4, nameY + Math.min(W * 0.06, 40));
@@ -310,15 +311,17 @@ export class Intro {
     g.fillStyle = glow;
     g.fillRect(0, 0, W, H);
     const n = CHARACTERS.length;
-    const h = Math.min(H * 0.62, W * 0.42);
+    // Fit the whole line-up across the screen, each figure overlapping the next a little.
+    const aspect = 0.7;
+    const h = Math.min(H * 0.6, (W * 0.94) / ((n - 1) * 0.72 + 1) / aspect);
     CHARACTERS.forEach((ch, i) => {
       const pic = portraitNow(ch);
       if (!pic) return;
       const w = (h * pic.img.width) / pic.img.height;
-      const rise = easeOut((t - i * 0.12) / 0.5);
-      const x = W / 2 + (i - (n - 1) / 2) * w * 0.68 - w / 2;
+      const rise = easeOut((t - i * 0.08) / 0.5);
+      const x = W / 2 + (i - (n - 1) / 2) * w * 0.72 - w / 2;
       g.globalAlpha = rise;
-      g.drawImage(pic.img, x, H - h * rise + 6, w, h);
+      drawPortrait(g, pic, x, H - h * rise - (pic.custom ? H * 0.06 : -6), w, h);
     });
     g.globalAlpha = 1;
     this.logo(g, W, H * 0.2, Math.min(W * 0.11, 96), 2 * Math.sin(t * 30), easeOut(t / 0.4));

@@ -2,7 +2,7 @@
 // circular visualizer, queue, shuffle/repeat, seek, a mini player in the menu and
 // lock-screen controls through the Media Session API.
 
-import { portraitNow } from './characters.js';
+import { portraitNow, faceCrop } from './characters.js';
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const $ = (id) => document.getElementById(id);
@@ -337,7 +337,11 @@ export class Player {
     g.fillStyle = col.primary;
     g.fillRect(-R, -R, R * 2, R * 2);
     const pic = portraitNow(this.character);
-    if (pic) {
+    if (pic && pic.custom) {
+      const c = faceCrop(pic);
+      const s = R * 0.95;
+      g.drawImage(pic.img, c.sx, c.sy, c.sw, c.sw, -s / 2, -s * 0.42, s, s);
+    } else if (pic) {
       const h = R * 1.6;
       const w = (h * pic.img.width) / pic.img.height;
       g.drawImage(pic.img, -w / 2, -h * 0.3, w, h);

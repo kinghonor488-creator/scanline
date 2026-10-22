@@ -1,11 +1,15 @@
-# Custom character art
+# Character art
 
-The game draws every character with code (SVG). To use your own illustration instead:
+Each character is drawn with code (SVG) until you add a real illustration for her.
+See `PROMPTS.md` for ready-made ChatGPT prompts (Chinese and English) for all eight characters.
 
-1. Save a PNG with a transparent background, portrait orientation (about 400×560 ratio,
-   e.g. 1200×1680), head near the top, cropped at the chest. Name it after the character id:
-   `aoi.png`, `sakura.png`, `luna.png` or `hikari.png`.
-2. Put it in this folder.
-3. Add the id to `custom.json`, e.g. `["aoi", "luna"]`.
+To add an illustration:
 
-Reload the game; menus, cut-ins, the intro and the music player will all use your art.
+1. Make a vertical 2:3 picture (for example 1024×1536) of the whole character in her scene, as in PROMPTS.md.
+   It does not need a transparent background; the game shows it as a framed card and blurs it for the stage.
+2. Save it as a PNG named after the character id:
+   `yuexian.png`, `qingdai.png`, `shuanglan.png`, `zidie.png`, `sakumi.png`, `feiwu.png`, `moyu.png`, `fenghua.png`.
+3. Put it in this folder and add the id to `custom.json`, e.g. `["yuexian", "qingdai"]`.
+
+The game then uses it everywhere: character select, main menu, opening, combo cut-ins, results,
+music player disc and as a soft blurred background while playing.

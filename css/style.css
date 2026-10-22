@@ -404,6 +404,13 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); }
 }
 .fx-chip:hover { color: var(--text); border-color: var(--cyan); }
 
+/* Full illustration cards (custom art) get a frame instead of a cut-out silhouette. */
+.is-card img { object-fit: cover; object-position: top; border-radius: 18px; border: 3px solid rgba(255, 255, 255, 0.85); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45); }
+.menu-portrait.is-card { height: min(86%, 720px); align-self: center; margin-bottom: 4%; filter: none; }
+.char-card .art { overflow: hidden; }
+.char-card .art img { width: 100%; height: 100%; display: block; }
+.char-card .art.is-card img { border: 0; border-radius: 0; box-shadow: none; object-position: 50% 14%; }
+
 /* ---------- characters ---------- */
 .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
 .char-card {

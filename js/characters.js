@@ -4,80 +4,92 @@
 
 export const CHARACTERS = [
   {
-    id: 'aoi',
-    name: 'Aoi',
-    jp: '葵',
-    title: 'Neon Wanderer',
-    blurb: 'A night-owl DJ who hears a beat in every city light.',
-    scene: 'neon',
-    hair: 'long',
-    acc: 'headphones',
-    outfit: 'cyber',
-    mouth: 'smile',
+    id: 'yuexian', name: '月弦', en: 'Yuexian', title: 'Moonlit Violinist',
+    blurb: 'A silver-haired violinist who plays duets with the moon.',
+    scene: 'stars', hair: 'longwave', acc: 'stars', outfit: 'dress', mouth: 'smile',
     colors: {
-      primary: '#4fd8ff', secondary: '#9b7bff', accent: '#ff5fb7',
-      hair: '#3f6fe0', hairLight: '#8fc4ff', hairShade: '#253a92',
-      eye: '#45e4ff', eyeDark: '#1b4592',
-      outfit: '#1c2240', outfit2: '#4fd8ff',
+      primary: '#7aa6ff', secondary: '#ff8a6b', accent: '#ffd27a',
+      hair: '#dfe3f2', hairLight: '#ffffff', hairShade: '#9aa1c8',
+      eye: '#7aa0ff', eyeDark: '#2b3f8f', outfit: '#1f2f6b', outfit2: '#ff8a6b',
     },
-    lines: ['Ready when you are. Let the city keep time.', 'That last combo? The neon signs blinked along.', 'Headphones on. World off.'],
+    lines: ['Shall we play this one together?', 'The moon is keeping time for us tonight.', 'Every string remembers the song.'],
   },
   {
-    id: 'sakura',
-    name: 'Sakura',
-    jp: '樱',
-    title: 'Blossom Idol',
-    blurb: 'A cheerful idol-in-training who dances through petal storms.',
-    scene: 'sakura',
-    hair: 'twintails',
-    acc: 'ribbon',
-    outfit: 'sailor',
-    mouth: 'open',
+    id: 'qingdai', name: '青黛', en: 'Qingdai', title: 'Jade Apothecary',
+    blurb: 'A herbalist who brews melodies by lantern light.',
+    scene: 'pavilion', hair: 'long', acc: 'flower', outfit: 'dress', mouth: 'smile',
     colors: {
-      primary: '#ff6fae', secondary: '#ffb35e', accent: '#ff6fae',
-      hair: '#ff9cc8', hairLight: '#ffd6ea', hairShade: '#d65c98',
-      eye: '#ff5ea4', eyeDark: '#8a1f55',
-      outfit: '#ffffff', outfit2: '#3c4c8f',
+      primary: '#5fd6a8', secondary: '#f2d48a', accent: '#c8f5e0',
+      hair: '#2b2a3a', hairLight: '#5f5f80', hairShade: '#15141f',
+      eye: '#9a7bd6', eyeDark: '#3a2a6b', outfit: '#2f7a5a', outfit2: '#f3ecd8',
     },
-    lines: ['Let\'s make this stage bloom!', 'Eeh?! Was that a full combo?!', 'Practice makes petals perfect~'],
+    lines: ['A pinch of rhythm, a spoonful of melody.', 'The lanterns are lit. Ready?', 'Breathe in, then follow the beat.'],
   },
   {
-    id: 'luna',
-    name: 'Luna',
-    jp: '露娜',
-    title: 'Starlit Dreamer',
-    blurb: 'A quiet stargazer who maps melodies onto constellations.',
-    scene: 'stars',
-    hair: 'longwave',
-    acc: 'stars',
-    outfit: 'dress',
-    mouth: 'smile',
+    id: 'shuanglan', name: '霜蓝', en: 'Shuanglan', title: 'Frost Rose',
+    blurb: 'A quiet girl in lace who guards a castle of blue roses.',
+    scene: 'castle', hair: 'bob', acc: 'ribbon', outfit: 'dress', mouth: 'smile',
     colors: {
-      primary: '#b39dff', secondary: '#6fe6ff', accent: '#ffe48a',
-      hair: '#d8dbf4', hairLight: '#ffffff', hairShade: '#9497c8',
-      eye: '#a084ff', eyeDark: '#36268f',
-      outfit: '#2a2458', outfit2: '#b39dff',
+      primary: '#7fb2ff', secondary: '#c9a8ff', accent: '#ffffff',
+      hair: '#6b9cff', hairLight: '#bcd6ff', hairShade: '#3a5fc0',
+      eye: '#4f8cff', eyeDark: '#1f3c8f', outfit: '#1c1a2e', outfit2: '#3a3a60',
     },
-    lines: ['The stars are listening tonight.', 'Close your eyes... can you hear the next note?', 'Every song is a constellation.'],
+    lines: ['The roses bloom when you keep the beat.', 'Please... play with me a little longer.', 'Frost melts for a perfect combo.'],
   },
   {
-    id: 'hikari',
-    name: 'Hikari',
-    jp: '光',
-    title: 'Sunset Racer',
-    blurb: 'A speed-loving gamer girl who never lets a beat get away.',
-    scene: 'sunset',
-    hair: 'bob',
-    acc: 'catears',
-    outfit: 'hoodie',
-    mouth: 'cat',
+    id: 'zidie', name: '紫蝶', en: 'Zidie', title: 'Butterfly Blade',
+    blurb: 'A swordswoman whose cloak scatters butterflies on every cut.',
+    scene: 'wisteria', hair: 'long', acc: 'flower', outfit: 'hoodie', mouth: 'smile',
     colors: {
-      primary: '#ffad33', secondary: '#ff5c86', accent: '#ffe14d',
-      hair: '#ff9440', hairLight: '#ffd28f', hairShade: '#c45a22',
-      eye: '#ffb72e', eyeDark: '#8a3510',
-      outfit: '#2c1d38', outfit2: '#ffad33',
+      primary: '#b98cff', secondary: '#7ff0c8', accent: '#ff9ad5',
+      hair: '#4a2a6b', hairLight: '#9a6bd6', hairShade: '#2a1640',
+      eye: '#b06bff', eyeDark: '#4a1f8f', outfit: '#3a2a5a', outfit2: '#e8d8ff',
     },
-    lines: ['Faster! I want a harder chart!', 'Nyah~ that hit felt good.', 'Last one to a full combo buys snacks!'],
+    lines: ['Light steps, sharp timing.', 'The butterflies follow your rhythm.', 'One clean cut per beat.'],
+  },
+  {
+    id: 'sakumi', name: '樱见', en: 'Sakumi', title: 'Spring Harbor',
+    blurb: 'A schoolgirl who walks the harbour road every spring.',
+    scene: 'sakura', hair: 'long', acc: 'none', outfit: 'sailor', mouth: 'open',
+    colors: {
+      primary: '#ff8fbf', secondary: '#7fb8ff', accent: '#ffe0ec',
+      hair: '#3b2420', hairLight: '#7a4a40', hairShade: '#1e1210',
+      eye: '#7a5a9a', eyeDark: '#2a1a40', outfit: '#26305e', outfit2: '#2f8a6a',
+    },
+    lines: ['Petals are falling. Let\'s go!', 'Same time tomorrow, after school?', 'That was so much fun!'],
+  },
+  {
+    id: 'feiwu', name: '绯舞', en: 'Feiwu', title: 'Desert Dancer',
+    blurb: 'A dancer whose silk ribbons trace the beat across the dunes.',
+    scene: 'dunes', hair: 'longwave', acc: 'flower', outfit: 'dress', mouth: 'smile',
+    colors: {
+      primary: '#ff6b5e', secondary: '#3fc6b8', accent: '#ffd27a',
+      hair: '#3a2418', hairLight: '#6a4430', hairShade: '#1e120c',
+      eye: '#c8783a', eyeDark: '#5a2a10', outfit: '#b8322e', outfit2: '#ffd27a',
+    },
+    lines: ['Follow my steps across the sand.', 'The oasis sings when you dance.', 'Spin, sway... and strike!'],
+  },
+  {
+    id: 'moyu', name: '墨羽', en: 'Moyu', title: 'Ink Swordswoman',
+    blurb: 'A wandering swordswoman painted in ink and mountain mist.',
+    scene: 'ink', hair: 'long', acc: 'none', outfit: 'cyber', mouth: 'smile',
+    colors: {
+      primary: '#4fb8c8', secondary: '#9a7bff', accent: '#e8dcc8',
+      hair: '#2a2230', hairLight: '#5a4a60', hairShade: '#120e16',
+      eye: '#4a8a9a', eyeDark: '#1a3a44', outfit: '#1e2a44', outfit2: '#4fb8c8',
+    },
+    lines: ['Draw your blade with the downbeat.', 'Still water, swift sword.', 'The mountains are listening.'],
+  },
+  {
+    id: 'fenghua', name: '枫华', en: 'Fenghua', title: 'Crimson Maple',
+    blurb: 'An autumn spirit dressed in maple red and falling gold.',
+    scene: 'maple', hair: 'longwave', acc: 'flower', outfit: 'dress', mouth: 'smile',
+    colors: {
+      primary: '#ff5a4a', secondary: '#ffb84a', accent: '#ffe0a0',
+      hair: '#2a1a18', hairLight: '#5a3a30', hairShade: '#120a08',
+      eye: '#c04a3a', eyeDark: '#4a1410', outfit: '#a8241e', outfit2: '#ffcf6b',
+    },
+    lines: ['Every leaf falls right on the beat.', 'Autumn is short. Let\'s play.', 'Red as the maple, bright as your combo.'],
   },
 ];
 
@@ -236,6 +248,17 @@ function accessory(kind, c) {
         <path d="M272,232 C266,276 236,292 220,292" stroke="#2c1d38" stroke-width="3" fill="none"/>
         <circle cx="218" cy="292" r="4.5" fill="${c.primary}"/>`;
     }
+    case 'flower': {
+      const bloom = (x, y, r, col) => {
+        let out = '';
+        for (let k = 0; k < 5; k++) {
+          const ang = (k / 5) * Math.PI * 2;
+          out += `<circle cx="${(x + Math.cos(ang) * r * 0.6).toFixed(1)}" cy="${(y + Math.sin(ang) * r * 0.6).toFixed(1)}" r="${(r * 0.55).toFixed(1)}" fill="${col}" stroke="${LINE}" stroke-width="1.4"/>`;
+        }
+        return `${out}<circle cx="${x}" cy="${y}" r="${(r * 0.35).toFixed(1)}" fill="${c.accent}"/>`;
+      };
+      return bloom(258, 150, 16, c.primary) + bloom(276, 176, 10, c.secondary) + bloom(242, 128, 9, '#ffffff');
+    }
     default:
       return '';
   }
@@ -367,6 +390,80 @@ export function portraitNow(ch) {
   if (ready.has(ch.id)) return ready.get(ch.id);
   portraitImage(ch).then((p) => ready.set(ch.id, p));
   return null;
+}
+
+// Source rectangle for the face and upper body. Drawn busts use the whole picture; full
+// illustration cards (custom art) are cropped to the top of the figure.
+export function faceCrop(pic) {
+  const w = pic.img.naturalWidth || pic.img.width;
+  const h = pic.img.naturalHeight || pic.img.height;
+  if (!pic.custom) return { sx: 0, sy: 0, sw: w, sh: h };
+  const sw = w * 0.62;
+  return { sx: (w - sw) / 2, sy: h * 0.07, sw, sh: sw * 1.15 };
+}
+
+// A soft, blurred cover-fit copy of the art for backgrounds. Halving the image a few times and
+// doubling it back up gives a smooth blur that works everywhere (canvas filters are missing in
+// some Safari versions).
+const blurCache = new Map();
+export function blurredCover(pic, W, H) {
+  const key = `${pic.img.src}|${Math.round(W)}x${Math.round(H)}`;
+  if (blurCache.has(key)) return blurCache.get(key);
+  const canvas = (w, h) => {
+    const c = document.createElement('canvas');
+    c.width = Math.max(4, Math.round(w));
+    c.height = Math.max(4, Math.round(h));
+    return c;
+  };
+  const iw = pic.img.naturalWidth || pic.img.width;
+  const ih = pic.img.naturalHeight || pic.img.height;
+  let cur = canvas(W / 2, H / 2);
+  let g = cur.getContext('2d');
+  const k = Math.max(cur.width / iw, cur.height / ih);
+  g.drawImage(pic.img, (cur.width - iw * k) / 2, (cur.height - ih * k) / 2, iw * k, ih * k);
+  const steps = [];
+  for (let i = 0; i < 4; i++) {
+    const next = canvas(cur.width / 2, cur.height / 2);
+    const ng = next.getContext('2d');
+    ng.imageSmoothingQuality = 'high';
+    ng.drawImage(cur, 0, 0, next.width, next.height);
+    steps.push(cur);
+    cur = next;
+  }
+  while (steps.length) {
+    const up = steps.pop();
+    const ug = up.getContext('2d');
+    ug.imageSmoothingQuality = 'high';
+    ug.clearRect(0, 0, up.width, up.height);
+    ug.drawImage(cur, 0, 0, up.width, up.height);
+    cur = up;
+  }
+  if (blurCache.size > 6) blurCache.delete(blurCache.keys().next().value);
+  blurCache.set(key, cur);
+  return cur;
+}
+
+// Draws a character: an illustration card gets a rounded white frame, a drawn bust is drawn as is.
+export function drawPortrait(g, pic, x, y, w, h) {
+  if (!pic.custom) {
+    g.drawImage(pic.img, x, y, w, h);
+    return;
+  }
+  const r = Math.min(w, h) * 0.05;
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.45)';
+  g.shadowBlur = 24;
+  g.fillStyle = '#ffffff';
+  g.beginPath();
+  g.roundRect(x - 4, y - 4, w + 8, h + 8, r + 4);
+  g.fill();
+  g.restore();
+  g.save();
+  g.beginPath();
+  g.roundRect(x, y, w, h, r);
+  g.clip();
+  g.drawImage(pic.img, x, y, w, h);
+  g.restore();
 }
 
 export function applyTheme(ch) {

@@ -3,7 +3,7 @@
 import { FX } from './fx.js';
 import { outputLatency } from './audio.js';
 import { sceneFor } from './scenes.js';
-import { portraitNow } from './characters.js';
+import { portraitNow, faceCrop, blurredCover } from './characters.js';
 
 export const WIN = { perfect: 0.07, good: 0.13, bad: 0.18 };
 const NOTE_SCALE = 2.25;
@@ -711,8 +711,16 @@ export class Game {
   drawBackground(g, pulse = 0) {
     const { W, H } = this;
     const now = performance.now() / 1000;
-    if (this.scene) this.scene.draw(g, now, pulse);
-    else {
+    const pic = this.character && portraitNow(this.character);
+    if (pic && pic.custom) {
+      // With illustrated art the stage is a soft blur of the character's own card, plus her particles.
+      g.drawImage(blurredCover(pic, W, H), 0, 0, W, H);
+      g.fillStyle = 'rgba(8, 6, 22, 0.12)';
+      g.fillRect(0, 0, W, H);
+      if (this.scene) this.scene.drawDynamic(g, now, pulse);
+    } else if (this.scene) {
+      this.scene.draw(g, now, pulse);
+    } else {
       g.fillStyle = '#070a12';
       g.fillRect(0, 0, W, H);
     }
@@ -729,8 +737,7 @@ export class Game {
       g.fillRect(0, H * 0.55, W, H * 0.45);
       g.globalAlpha = 1;
     }
-    const pic = this.character && portraitNow(this.character);
-    if (pic) {
+    if (pic && !pic.custom) {
       const h = H * 0.95;
       const w = (h * pic.img.width) / pic.img.height;
       const bob = Math.sin(now * 1.6) * 4 - pulse * 3;
@@ -770,7 +777,13 @@ export class Game {
       g.fillRect(lx, ly, 80 + (i % 4) * 40, 2);
     }
     const pic = this.character && portraitNow(this.character);
-    if (pic) {
+    if (pic && pic.custom) {
+      const c = faceCrop(pic);
+      const dh = bh * 1.5;
+      const dw = (dh * c.sw) / c.sh;
+      g.globalAlpha = slide;
+      g.drawImage(pic.img, c.sx, c.sy, c.sw, c.sh, W - dw - W * 0.04 + (1 - slide) * 200, y0 - bh * 0.2, dw, dh);
+    } else if (pic) {
       const h = bh * 2.1;
       const w = (h * pic.img.width) / pic.img.height;
       g.globalAlpha = slide;
@@ -797,6 +810,14 @@ export class Game {
 
   drawIdle(g) {
     const { W, H } = this;
+    const pic = this.character && portraitNow(this.character);
+    if (pic && pic.custom) {
+      g.drawImage(blurredCover(pic, W, H), 0, 0, W, H);
+      g.fillStyle = 'rgba(10, 6, 28, 0.35)';
+      g.fillRect(0, 0, W, H);
+      if (this.scene) this.scene.drawDynamic(g, performance.now() / 1000, 0);
+      return;
+    }
     if (this.scene) {
       this.scene.draw(g, performance.now() / 1000, 0);
       // Darker on the left where the menu text sits.

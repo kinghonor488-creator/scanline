@@ -18,8 +18,8 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 - `js/fx.js` — particles, rings, floating judgement text, screen shake.
 - `js/storage.js` — IndexedDB for imported songs (original bytes + analysis) and best scores.
 - `js/calibrate.js` — tap-along metronome (100 BPM, 4 warm-up + 16 measured taps) -> median audio offset.
-- `js/characters.js` — 4 original anime characters (Aoi, Sakura, Luna, Hikari) drawn as layered SVG from one
-  template; theme colours; optional PNG override via `assets/characters/custom.json`.
+- `js/characters.js` — 8 original characters (月弦 青黛 霜蓝 紫蝶 樱见 绯舞 墨羽 枫华). SVG busts are placeholders; real art is a
+  2:3 illustration card per character (`assets/characters/<id>.png` + `custom.json`, prompts in `PROMPTS.md`).
 - `js/scenes.js` — per-character animated backgrounds (neon city / sakura / starry sea / synthwave sunset).
 - `js/player.js` — music player screen, mini player, Media Session controls.
 - `js/soundpanel.js` — Sound panel: draggable 10-band EQ over a live spectrum, presets, loudness, spatial, crossfade.
@@ -66,6 +66,11 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   player notes: full-size flash-in with a double blink (no growth), a bright core that grows to fill the note exactly
   on the beat (replaces the arc), clockwise hold timer with a white tip, and a "Notes appear: one by one / a page
   at a time" setting (Cytus II's Default/Group). Game.spawnAt(n) + maxLead drive visibility. sw v7.
+- 2026-10-22: Roster replaced with 8 original characters modelled on the user's paper-cut references (no copying;
+  the references include franchise characters, so they are style inspiration only). Illustration-card support:
+  framed cards in menu/select/results/intro, face crop for cut-ins and player disc, blurred card as the stage
+  (progressive down/upscale blur). ThemedScene adds pavilion/castle/wisteria/dunes/ink/maple. Fonts re-subset
+  with the new names. Tested with a temporary local card (removed before commit). sw v8.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed
@@ -83,5 +88,5 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
 - Long holds spanning pages, click-drag heads (Cytus II note types not yet implemented).
 - Run the analyzer in a Web Worker for very long files (currently chunked on the main thread).
 - Optional chart editor / per-song manual BPM override.
-- Real illustrated character art (PNG) would lift quality most; the SVG portraits are flat placeholders.
+- Waiting on ChatGPT illustrations for the 8 characters (see assets/characters/PROMPTS.md).
 - Voice lines / character-specific hit sounds; unlockables per character.

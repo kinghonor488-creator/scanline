@@ -58,6 +58,7 @@ async function portraitInto(node, ch) {
   const token = (node.dataset.token = String(Math.random()));
   const p = await portraitImage(ch);
   if (node.dataset.token !== token) return;
+  node.classList.toggle('is-card', p.custom);
   if (p.custom) {
     const img = el('img');
     img.src = p.img.src;
@@ -75,7 +76,7 @@ function setCharacter(ch) {
   game.setCharacter(ch);
   if (player) player.setCharacter(ch);
   portraitInto($('menu-portrait'), ch);
-  $('menu-char-name').textContent = `${ch.name}  ${ch.jp}`;
+  $('menu-char-name').textContent = `${ch.name}  ${ch.en}`;
   $('menu-char-title').textContent = ch.title.toUpperCase();
   for (const card of $('char-grid').children) card.classList.toggle('selected', card.dataset.id === ch.id);
 }
@@ -101,7 +102,7 @@ for (const ch of CHARACTERS) {
   card.style.setProperty('--c1', ch.colors.primary);
   const art = el('div', 'art');
   portraitInto(art, ch);
-  card.append(art, el('div', 'jp', ch.jp), el('div', 'nm', ch.name), el('div', 'tt', ch.title.toUpperCase()), el('div', 'bl', ch.blurb), el('span', 'tag', 'PARTNER'));
+  card.append(art, el('div', 'jp', ch.en.toUpperCase()), el('div', 'nm', ch.name), el('div', 'tt', ch.title.toUpperCase()), el('div', 'bl', ch.blurb), el('span', 'tag', 'PARTNER'));
   card.addEventListener('click', () => {
     setCharacter(ch);
     say(ch.lines[0]);
