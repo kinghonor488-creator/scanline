@@ -82,6 +82,8 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   the column is narrow) so it never covers the face. Multi-touch: CDP-simulated simultaneous taps (22 doubles,
   holds kept down under other taps) all PERFECT; added touch/gesture preventDefault on the canvas against iOS
   system gestures, -webkit-touch-callout none, and a hit-candidate bias toward the note actually under a finger. v11.
+- 2026-10-22: Touch reach 2r + finger contact radius (PointerEvent width/height, capped 0.6r); measured: taps up to 1.9r
+  from centre register, 2.3r does not (was 1.75r). Drag touch box 2.2r x 2.6r. v12.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. On every deploy bump `VERSION` in `sw.js` and `BUILD` in

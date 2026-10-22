@@ -192,7 +192,7 @@ export class Game {
     this.dpr = dpr;
     this.W = W;
     this.H = H;
-    // Note radius (also sets the touch area, which reaches 1.75x this).
+    // Note radius (also sets the touch area, which reaches 2x this plus the finger's contact size).
     this.r = NOTE_SCALE * Math.max(18, Math.min(40, Math.min(W, H) * 0.045));
     // Keep the field and HUD clear of the notch / home indicator on phones.
     const safe = (this.safe = safeInsets());
@@ -569,10 +569,11 @@ export class Game {
 
   // ---------------------------------------------------------------- input
 
-  hitCandidate(t, x, y) {
+  hitCandidate(t, x, y, contact = 0) {
     let best = null;
     let bestKey = Infinity;
-    const reach = this.r * 1.75;
+    // Touching anywhere on the note or its glow counts; the finger's own contact radius is added on top.
+    const reach = this.r * 2 + Math.min(contact, this.r * 0.6);
     for (let i = this.cursor; i < this.notes.length; i++) {
       const n = this.notes[i];
       if (n.t > t + WIN.bad) break;
@@ -595,9 +596,9 @@ export class Game {
     return best;
   }
 
-  press(id, x, y, t, isKey) {
+  press(id, x, y, t, isKey, contact = 0) {
     const ptr = { id, x, y, sx: x, sy: y, hold: null, flick: null };
-    const n = this.hitCandidate(t, isKey ? null : x, isKey ? null : y);
+    const n = this.hitCandidate(t, isKey ? null : x, isKey ? null : y, contact);
     if (!n) {
       if (!isKey) this.fx.ring(x, y, 'rgba(255,255,255,0.6)', 4, this.r * 0.9, 0.2, 2);
       return ptr;
@@ -618,7 +619,7 @@ export class Game {
   touching(n) {
     const p = this.posAt(n.x, n.y);
     for (const ptr of this.pointers.values()) {
-      if (Math.abs(ptr.x - p.x) <= this.r * 2 && Math.abs(ptr.y - p.y) <= this.r * 2.5) return true;
+      if (Math.abs(ptr.x - p.x) <= this.r * 2.2 && Math.abs(ptr.y - p.y) <= this.r * 2.6) return true;
     }
     return false;
   }
@@ -627,7 +628,9 @@ export class Game {
     if (this.state !== 'playing') return;
     e.preventDefault();
     try { this.canvas.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
-    const ptr = this.press(e.pointerId, e.clientX, e.clientY, this.eventTime(e), false);
+    // width/height is the touch contact patch where the device reports it (0 or 1 for a mouse).
+    const contact = e.pointerType === 'touch' ? Math.max(e.width || 0, e.height || 0) / 2 : 0;
+    const ptr = this.press(e.pointerId, e.clientX, e.clientY, this.eventTime(e), false, contact);
     this.pointers.set(e.pointerId, ptr);
   }
 
