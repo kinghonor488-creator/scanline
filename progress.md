@@ -52,6 +52,8 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   Calibration clicks now go through the same chain so the limiter's lookahead is included in the offset.
 - 2026-10-21: Offline PWA: manifest + icons, subset self-hosted fonts (OFL), `sw.js` precache + stale-while-revalidate,
   storage.persist() on start, safe-area insets in the canvas layout. Published to GitHub Pages.
+- 2026-10-21: Landscape-only on touch devices: manifest orientation landscape, rotate-device overlay for portrait
+  (pointer: coarse), game auto-pauses when turned upright, short-landscape layout pass for every screen. sw v2.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. Bump `VERSION` in `sw.js` whenever files are added or renamed

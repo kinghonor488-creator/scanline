@@ -618,6 +618,8 @@ $('intro-skip').addEventListener('click', () => intro.skip());
 
 async function leaveTitle() {
   await resumeCtx();
+  // Android honours an orientation lock in fullscreen; iOS ignores it and relies on the rotate prompt.
+  screen.orientation?.lock?.('landscape').catch(() => {});
   // Ask the browser not to evict imported songs when the device is low on space.
   navigator.storage?.persist?.().catch(() => {});
   if (settings.intro) playIntro();
@@ -704,6 +706,12 @@ window.addEventListener('keydown', (e) => {
   }
 });
 window.addEventListener('keyup', (e) => game.keyUp(e));
+
+// Turning a phone upright mid-song brings up the rotate prompt, so pause underneath it.
+const portraitTouch = matchMedia('(orientation: portrait) and (pointer: coarse)');
+portraitTouch.addEventListener?.('change', (e) => {
+  if (e.matches && game.state === 'playing' && !game.manual) game.pause();
+});
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && game.state === 'playing' && !game.manual) game.pause();

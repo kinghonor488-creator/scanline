@@ -604,7 +604,84 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); }
   z-index: 10;
 }
 
-@media (max-width: 860px) {
+/* ---------- landscape only on phones & tablets ---------- */
+.rotate-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 40%, #3a1a6a, #120c2a 70%);
+}
+.rotate-overlay b { font-size: 22px; font-weight: 900; }
+.rotate-overlay span { color: var(--muted); font-size: 14px; max-width: 300px; }
+.rotate-phone {
+  width: 54px;
+  height: 92px;
+  border: 4px solid #fff;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--cyan) 60%, transparent);
+  animation: turn 2.2s ease-in-out infinite;
+}
+@keyframes turn { 0%, 25% { transform: rotate(0); } 55%, 85% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+@media (orientation: portrait) and (pointer: coarse) {
+  .rotate-overlay { display: flex; }
+}
+
+/* ---------- short landscape screens (phones on their side) ---------- */
+@media (max-height: 540px) and (orientation: landscape) {
+  .screen { padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 10px; }
+  .panel { padding: 16px 20px; max-height: calc(100vh - 20px); overflow-y: auto; }
+  .panel h2 { font-size: 20px; }
+  .logo { font-size: 30px; }
+  .logo.big { font-size: clamp(44px, 9vw, 80px); }
+  .tagline { font-size: 13px; }
+  .menu-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); }
+  .menu-head { margin-bottom: 8px; }
+  .menu-nav { margin-bottom: 8px; }
+  .menu-nav .btn { min-height: 38px; padding: 0 14px; font-size: 14px; }
+  .section-title { margin: 10px 0 6px; }
+  .song { padding: 8px 12px; }
+  .song .swatch { width: 38px; height: 38px; }
+  .menu-stage { height: 100vh; }
+  .menu-portrait { height: 96%; }
+  .nameplate { bottom: 14px; padding: 6px 16px; }
+  .nameplate b { font-size: 18px; }
+  .bubble { top: 6%; font-size: 12px; max-width: 200px; }
+  .diff-list { margin: 10px 0; }
+  .diff { padding: 8px; }
+  .diff .lv { font-size: 26px; }
+  .row { margin-top: 10px; }
+  .char-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .char-card { padding-bottom: 8px; }
+  .char-card .art { height: 120px; }
+  .char-card .nm { font-size: 17px; }
+  .char-card .bl { display: none; }
+  .player-head { margin-bottom: 6px; }
+  .player-main { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; }
+  .player-stage { padding: 10px; gap: 6px; }
+  #player-viz { width: min(400px, 46vh); }
+  .np-title { font-size: 18px; }
+  .icon-btn { width: 40px; height: 40px; }
+  .icon-btn.big { width: 52px; height: 52px; }
+  .pl-queue { max-height: calc(100vh - 90px); }
+  #eq-canvas { height: 150px; margin: 8px 0; }
+  .res-top { margin: 4px 0 8px; }
+  .rank { font-size: 56px; }
+  .res-score { font-size: 32px; }
+  .res-table td { padding: 3px 4px; }
+  .panel.results { overflow: visible; max-height: none; }
+  .res-portrait { width: 160px; right: -150px; bottom: -10px; top: auto; }
+  .calib-pad { width: 110px; height: 110px; margin: 10px auto 8px; }
+}
+
+@media (max-width: 860px) and (orientation: portrait) {
   .menu-layout { grid-template-columns: 1fr; }
   .menu-stage { position: fixed; inset: 0; height: auto; z-index: 0; opacity: 0.32; }
   .menu-stage .nameplate, .menu-stage .bubble { display: none; }
