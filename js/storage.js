@@ -80,7 +80,8 @@ export async function deleteSong(id) {
     const tx = db.transaction(['songs', 'audio', 'best'], 'readwrite');
     tx.objectStore('songs').delete(id);
     tx.objectStore('audio').delete(id);
-    for (const d of ['easy', 'hard', 'chaos']) tx.objectStore('best').delete(`${id}:${d}`);
+    // Covers the original charts and every regenerated variant (keys look like `${id}:hard:v123`).
+    tx.objectStore('best').delete(IDBKeyRange.bound(`${id}:`, `${id}:\uffff`));
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });

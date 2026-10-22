@@ -195,7 +195,7 @@ async function renderList() {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSong(s); }
     });
     ul.append(li);
-    Promise.all(DIFFS.map((d) => store.getBest(s.id, d))).then((recs) => {
+    Promise.all(DIFFS.map((d) => store.getBest(s.id, bestKey(d, variantFor(s.id, d))))).then((recs) => {
       recs.forEach((r, i) => {
         if (!r) return;
         const line = el('div');
@@ -214,39 +214,81 @@ let selectedDiff = (() => {
   try { return localStorage.getItem('scanline.diff') || 'easy'; } catch { return 'easy'; }
 })();
 
+// Each song + difficulty remembers which chart variant was picked (0 = the original).
+const variantKey = (id, d) => `scanline.variant.${id}.${d}`;
+function variantFor(id, d) {
+  try { return +localStorage.getItem(variantKey(id, d)) || 0; } catch { return 0; }
+}
+function saveVariant(id, d, v) {
+  try {
+    if (v) localStorage.setItem(variantKey(id, d), String(v));
+    else localStorage.removeItem(variantKey(id, d));
+  } catch { /* storage blocked */ }
+}
+// Best scores are kept per chart, so a regenerated chart starts with a clean record.
+const bestKey = (d, v) => (v ? `${d}:v${v}` : d);
+const chartName = (v) => (v ? `Chart #${v}` : 'Original chart');
+
 async function openSong(s) {
   if (!s.analysis) {
     toast('Still preparing this song, one moment…', 2000);
     return;
   }
   currentSong = s;
-  charts = Object.fromEntries(DIFFS.map((d) => [d, generateChart(s.analysis, d, s.id)]));
+  charts = Object.fromEntries(DIFFS.map((d) => [d, generateChart(s.analysis, d, s.id, variantFor(s.id, d))]));
   $('diff-title').textContent = s.title;
   $('diff-meta').textContent = `${s.artist ? `${s.artist} · ` : ''}${Math.round(s.bpm)} BPM · ${fmtTime(s.duration)}`;
+  renderDiffCards();
+  selectDiff(selectedDiff);
+  show('menu', 'diff');
+  $('diff-play').focus();
+}
+
+function renderDiffCards(flash) {
+  const s = currentSong;
   const list = $('diff-list');
   list.replaceChildren();
   for (const d of DIFFS) {
     const c = charts[d];
-    const b = el('button', `diff ${d}`);
+    const b = el('button', `diff ${d}${d === flash ? ' rerolled' : ''}${d === selectedDiff ? ' selected' : ''}`);
     b.dataset.diff = d;
     b.append(el('div', 'name', d.toUpperCase()), el('div', 'lv', String(c.level)), el('div', 'sub', `${c.noteCount} notes`));
-    const bestLine = el('div', 'sub', '—');
+    const bestLine = el('div', 'sub', c.variant ? `#${c.variant}` : '—');
     b.append(bestLine);
-    store.getBest(s.id, d).then((r) => { if (r) bestLine.textContent = `Best ${String(r.score).padStart(7, '0')}`; });
+    store.getBest(s.id, bestKey(d, c.variant)).then((r) => {
+      if (r) bestLine.textContent = `Best ${String(r.score).padStart(7, '0')}`;
+    });
     b.addEventListener('click', () => selectDiff(d));
     b.addEventListener('dblclick', () => { selectDiff(d); startPlay(); });
     list.append(b);
   }
-  selectDiff(selectedDiff);
-  show('menu', 'diff');
-  $('diff-play').focus();
 }
 
 function selectDiff(d) {
   selectedDiff = d;
   try { localStorage.setItem('scanline.diff', d); } catch { /* storage blocked */ }
   for (const b of $('diff-list').children) b.classList.toggle('selected', b.dataset.diff === d);
+  const v = charts ? charts[d].variant : 0;
+  $('chart-label').textContent = `${d.toUpperCase()} · ${chartName(v)}`;
+  $('chart-original').disabled = !v;
 }
+
+function setChartVariant(v) {
+  const s = currentSong;
+  const d = selectedDiff;
+  saveVariant(s.id, d, v);
+  charts[d] = generateChart(s.analysis, d, s.id, v);
+  renderDiffCards(d);
+  selectDiff(d);
+}
+
+$('chart-reroll').addEventListener('click', () => {
+  const cur = charts[selectedDiff].variant;
+  let v = cur;
+  while (v === cur) v = 1 + Math.floor(Math.random() * 9999);
+  setChartVariant(v);
+});
+$('chart-original').addEventListener('click', () => setChartVariant(0));
 
 async function getBuffer(s) {
   if (bufferCache.has(s.id)) return bufferCache.get(s.id);
@@ -300,7 +342,8 @@ async function showResults(r) {
   portraitInto($('res-portrait'), character);
   const pool = r.allPerfect ? RESULT_LINES.allPerfect : r.fullCombo ? RESULT_LINES.fullCombo : r.score >= 800000 ? RESULT_LINES.good : RESULT_LINES.low;
   $('res-line').textContent = `${character.name}: “${pool[Math.floor(Math.random() * pool.length)]}”`;
-  $('res-song').textContent = `${currentSong.title} · ${r.diff.toUpperCase()} ${charts[r.diff].level}${r.autoplay ? ' · AUTO PLAY' : ''}`;
+  const variant = charts[r.diff].variant;
+  $('res-song').textContent = `${currentSong.title} · ${r.diff.toUpperCase()} ${charts[r.diff].level} · ${chartName(variant)}${r.autoplay ? ' · AUTO PLAY' : ''}`;
   $('res-rank').textContent = rankFor(r.score);
   $('res-score').textContent = String(r.score).padStart(7, '0');
   $('res-tp').textContent = `TP ${r.tp.toFixed(2)}`;
@@ -315,7 +358,7 @@ async function showResults(r) {
   show('results');
   $('res-retry').focus();
   if (!r.autoplay) {
-    const isBest = await store.submitBest(r.songId, r.diff, r).catch(() => false);
+    const isBest = await store.submitBest(r.songId, bestKey(r.diff, variant), r).catch(() => false);
     if (isBest) {
       badge = badge ? `${badge} · NEW BEST` : 'NEW BEST';
       $('res-badge').textContent = badge;
@@ -739,7 +782,15 @@ window.render_game_to_text = () => {
   const screens = visible();
   const payload = { screens, ...game.textState() };
   if (screens.includes('menu')) payload.songs = [demo, ...library].map((s) => ({ id: s.id, title: s.title, ready: !!s.analysis }));
-  if (screens.includes('diff')) payload.selectedDiff = selectedDiff;
+  if (screens.includes('diff')) {
+    payload.selectedDiff = selectedDiff;
+    payload.charts = DIFFS.map((d) => {
+      const c = charts[d];
+      const types = {};
+      for (const n of c.notes) types[n.type] = (types[n.type] || 0) + 1;
+      return { diff: d, variant: c.variant, level: c.level, notes: c.noteCount, types };
+    });
+  }
   if (intro.active) payload.intro = true;
   if (player.current) payload.player = { song: player.current.title, playing: player.playing, pos: +player.position().toFixed(2), shuffle: player.shuffle, repeat: player.repeat };
   if (screens.includes('sound')) payload.sound = { ...settings.fx, chain: { spatial: music.spatial, normalize: music.normalize, preamp: +music.preamp.gain.value.toFixed(3) } };
@@ -747,7 +798,7 @@ window.render_game_to_text = () => {
   return JSON.stringify(payload);
 };
 window.advanceTime = (ms) => game.advanceTime(ms);
-window.__scanline = { game, calib, player, intro, sound, music, settings, playIntro, demo, setCharacter, CHARACTERS, demoReady, generateChart, analyzeBuffer };
+window.__scanline = { getCharts: () => charts, game, calib, player, intro, sound, music, settings, playIntro, demo, setCharacter, CHARACTERS, demoReady, generateChart, analyzeBuffer };
 
 // Offline / installable app. Skipped on localhost (unless ?sw=1) so development always loads fresh files.
 const local = ['localhost', '127.0.0.1'].includes(location.hostname);

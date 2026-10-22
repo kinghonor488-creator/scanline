@@ -4,9 +4,9 @@
 export const DIFFS = ['easy', 'hard', 'chaos'];
 
 const CFG = {
-  easy:  { grid: 1, minGap: 0.95, maxNps: 2.0, thresh: 0.36, page: 2.3, holdProb: 0.55, holdMin: 1.5, flickProb: 0.1,  doubleProb: 0,    dragGap: 0,    absGap: 0.3 },
-  hard:  { grid: 2, minGap: 0.48, maxNps: 4.0, thresh: 0.3,  page: 2.0, holdProb: 0.5,  holdMin: 1.0, flickProb: 0.18, doubleProb: 0.25, dragGap: 0.5,  absGap: 0.16 },
-  chaos: { grid: 4, minGap: 0.24, maxNps: 7.0, thresh: 0.18, page: 1.8, holdProb: 0.45, holdMin: 1.0, flickProb: 0.22, doubleProb: 0.45, dragGap: 0.5,  absGap: 0.09 },
+  easy:  { grid: 1, minGap: 0.95, maxNps: 2.0, thresh: 0.36, page: 2.3, holdProb: 0.55, holdMin: 1.5, flickProb: 0.16, doubleProb: 0,    dragGap: 1.0, dragProb: 0.35, absGap: 0.3 },
+  hard:  { grid: 2, minGap: 0.48, maxNps: 4.0, thresh: 0.3,  page: 2.0, holdProb: 0.5,  holdMin: 1.0, flickProb: 0.28, doubleProb: 0.25, dragGap: 0.5, dragProb: 1,    absGap: 0.16 },
+  chaos: { grid: 4, minGap: 0.24, maxNps: 7.0, thresh: 0.18, page: 1.8, holdProb: 0.45, holdMin: 1.0, flickProb: 0.32, doubleProb: 0.45, dragGap: 0.5, dragProb: 1,    absGap: 0.09 },
 };
 
 function mulberry32(seed) {
@@ -29,9 +29,11 @@ export function hashString(s) {
   return h >>> 0;
 }
 
-export function generateChart(analysis, diff, seedKey = '') {
+// `variant` 0 is the song's original chart; any other number re-rolls placement and note types
+// (note timing always comes from the music).
+export function generateChart(analysis, diff, seedKey = '', variant = 0) {
   const cfg = CFG[diff];
-  const rng = mulberry32(hashString(`${seedKey}:${diff}`));
+  const rng = mulberry32(hashString(variant ? `${seedKey}:${diff}:${variant}` : `${seedKey}:${diff}`));
   const rand = (a, b) => a + (b - a) * rng();
   const beat = 60 / analysis.bpm;
   const offset = analysis.beatOffset;
@@ -130,7 +132,7 @@ export function generateChart(analysis, diff, seedKey = '') {
         let avg = 0;
         for (let k = s; k <= e; k++) avg += notes[k].score;
         avg /= len;
-        if (rng() < (avg < 0.62 ? 0.75 : 0.3)) {
+        if (rng() < (avg < 0.62 ? 0.8 : 0.4) * cfg.dragProb) {
           const id = ++chainId;
           for (let k = s; k <= e; k++) { notes[k].type = 'drag'; notes[k].chain = id; }
         }
@@ -164,7 +166,9 @@ export function generateChart(analysis, diff, seedKey = '') {
       }
     }
     // Flicks: accented hits with space around them.
-    if (n.score > 0.72 && prevGap >= beat * 0.5 && nextGap >= beat && rng() < cfg.flickProb) n.type = 'flick';
+    // A flick needs a moment to swipe: Easy wants three quarters of a beat after it, denser levels half a beat.
+    const flickRoom = beat * (cfg.grid > 1 ? 0.5 : 0.75);
+    if (n.score > 0.62 && prevGap >= beat * 0.5 && nextGap >= flickRoom && rng() < cfg.flickProb) n.type = 'flick';
   }
 
   // Dense charts rarely have a free beat, so on harder levels a sustained downbeat can become a hold
@@ -307,6 +311,7 @@ export function generateChart(analysis, diff, seedKey = '') {
 
   return {
     diff,
+    variant,
     bpm: analysis.bpm,
     beat,
     pageDur,

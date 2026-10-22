@@ -1,6 +1,6 @@
 // Offline support: every app file is cached on install, then served cache-first while a fresh copy
 // is fetched in the background (so updates show up on the next launch). Bump VERSION to force a refresh.
-const VERSION = 'scanline-v2';
+const VERSION = 'scanline-v3';
 const ASSETS = [
   './',
   'index.html',
