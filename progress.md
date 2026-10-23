@@ -84,11 +84,19 @@ Original prompt: in this folder ,I want to make a game that is similar to "Cytus
   system gestures, -webkit-touch-callout none, and a hit-candidate bias toward the note actually under a finger. v11.
 - 2026-10-22: Touch reach 2r + finger contact radius (PointerEvent width/height, capped 0.6r); measured: taps up to 1.9r
   from centre register, 2.3r does not (was 1.75r). Drag touch box 2.2r x 2.6r. v12.
+- 2026-10-23: Android APK. `android/` is a minimal WebView app (Java, AGP 8.5.2, minSdk 24) serving the bundled
+  game from https://appassets.androidplatform.net/assets/www via WebViewAssetLoader, with an audio file chooser,
+  immersive landscape, keep-screen-on, and back button -> window.__androidBack(). UA suffix ScanlineAndroid skips the
+  service worker. Built by .github/workflows/android.yml (on pushes touching the game) and published to the fixed
+  "android" release. Signing key in git-ignored android-signing/ + repo secrets ANDROID_KEYSTORE_B64 /
+  ANDROID_STORE_PASSWORD. v13.
 
 ## Deploying
 - Push to `main`; GitHub Pages serves the repo root. On every deploy bump `VERSION` in `sw.js` and `BUILD` in
   `js/version.js`; keep the sw precache list in sync with new files. Online players get new files on the next load;
   an open app shows the Reload bar.
+- The Android APK rebuilds automatically on the same push (Actions → Android APK); friends reinstall from the release link.
+- Never lose android-signing/: a new key means everyone has to uninstall before updating.
 
 ## Gotchas
 - Mouse is a single pointer: hard/chaos can put a hold over other notes, so mouse-only players will drop

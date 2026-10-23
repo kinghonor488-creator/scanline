@@ -1,0 +1,75 @@
+# Builds the Android app (the web game bundled into a WebView) and publishes it as the
+# "android" release, so the download link never changes:
+# https://github.com/kinghonor488-creator/scanline/releases/download/android/scanline.apk
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['index.html', 'manifest.webmanifest', 'css/**', 'js/**', 'assets/**', 'android/**', '.github/workflows/android.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Bundle the web game into the app
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp -R index.html manifest.webmanifest css js assets android/app/src/main/assets/www/
+          rm -f android/app/src/main/assets/www/assets/characters/*.md
+
+      - name: Restore signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > android/release.jks
+
+      - name: Build signed APK
+        working-directory: android
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          export VERSION_NAME="$(grep -o "v[0-9][0-9]*" ../js/version.js | head -1 | tr -d v).${GITHUB_RUN_NUMBER}"
+          gradle assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../scanline.apk
+
+      - name: Check the APK
+        run: |
+          AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)aapt2"
+          "$AAPT2" dump badging scanline.apk | head -5
+          "$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner" verify --print-certs scanline.apk | head -3
+          unzip -l scanline.apk | grep -E "assets/www/(index.html|js/main.js|assets/characters/yuexian.webp)"
+          ls -la scanline.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scanline-apk
+          path: scanline.apk
+
+      - name: Publish to the "android" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android >/dev/null 2>&1 || gh release create android --target main \
+            --title "SCANLINE for Android" \
+            --notes "Download scanline.apk on your Android phone, open it and allow installing from this source. Rebuilt automatically whenever the game is updated."
+          gh release upload android scanline.apk --clobber

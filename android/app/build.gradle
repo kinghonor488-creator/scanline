@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.application'
+}
+
+// The CI workflow copies the web game into src/main/assets/www and provides the signing secrets.
+android {
+    namespace 'io.github.kinghonor488.scanline'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'io.github.kinghonor488.scanline'
+        minSdk 24
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+        versionName System.getenv('VERSION_NAME') ?: 'dev'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../release.jks')
+            storePassword System.getenv('STORE_PASSWORD')
+            keyAlias 'scanline'
+            keyPassword System.getenv('STORE_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

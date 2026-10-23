@@ -487,7 +487,7 @@ window.addEventListener('drop', (e) => {
 
 // ------------------------------------------------------------------ settings
 
-$('build-label').textContent = `SCANLINE ${BUILD}`;
+$('build-label').textContent = `SCANLINE ${BUILD}${/ScanlineAndroid/.test(navigator.userAgent) ? ' · Android' : ''}`;
 
 function syncSettingsUI() {
   $('set-offset').value = settings.offsetMs;
@@ -841,8 +841,10 @@ window.__scanline = { getCharts: () => charts, game, calib, player, intro, sound
 
 // Offline / installable app. Skipped on localhost (unless ?sw=1) so development always loads fresh files.
 const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+// The Android app bundles every file, so it needs neither the service worker nor the update banner.
+const inApp = /ScanlineAndroid/.test(navigator.userAgent);
 let updateReady = false;
-if ('serviceWorker' in navigator && (!local || new URLSearchParams(location.search).has('sw'))) {
+if (!inApp && 'serviceWorker' in navigator && (!local || new URLSearchParams(location.search).has('sw'))) {
   navigator.serviceWorker.register('sw.js').then((reg) => {
     // A home-screen app is often resumed rather than relaunched, so look for updates on resume too.
     document.addEventListener('visibilitychange', () => {
@@ -860,6 +862,22 @@ if ('serviceWorker' in navigator && (!local || new URLSearchParams(location.sear
   });
 }
 $('update-reload').addEventListener('click', () => location.reload());
+
+// Android back button: close whatever is open; returns false on the main menu so the app can exit.
+window.__androidBack = () => {
+  const open = visible();
+  if (intro.active) { intro.skip(); return true; }
+  if (game.state === 'playing') { game.pause(); return true; }
+  if (open.includes('pause')) { resumeGame(); return true; }
+  if (open.includes('calib')) { closeCalib(); return true; }
+  if (open.includes('sound')) { closeSound(); return true; }
+  if (open.includes('results')) { backToMenu(); return true; }
+  if (['diff', 'settings', 'chars', 'player', 'import'].some((s) => open.includes(s))) {
+    if (!open.includes('import')) show('menu');
+    return true;
+  }
+  return false;
+};
 
 // Deep link for quick testing: ?play=demo&diff=hard&autoplay=1
 const params = new URLSearchParams(location.search);

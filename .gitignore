@@ -3,3 +3,10 @@
 art-src/
 share/pilot-yuexian-card.png
 share/cardgen.js
+android-signing/
+android/release.jks
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/
+android/local.properties
